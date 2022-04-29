@@ -1,3 +1,9 @@
 what's left to do in base character:
-- work on directional aiming system and an aim button
-- have two default projectile weapons
+slashing
+charging up the shot
+
+
+
+feel based stuff:
+- have gun kb be slighly based on the x dir too
+- have an input buffer 

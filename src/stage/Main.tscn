@@ -56,9 +56,9 @@ points = PoolVector2Array( 32, 32, 0, 32, 0, 0, 32, 0 )
 [node name="Main" type="Node2D"]
 
 [node name="KinematicBody2D" parent="." instance=ExtResource( 1 )]
-position = Vector2( 456, 41 )
+position = Vector2( 955, 76 )
 
-[node name="TileMap" type="TileMap" parent="."]
+[node name="TileMap" type="TileMap" parent="." groups=["floor"]]
 tile_set = SubResource( 1 )
 cell_size = Vector2( 32, 32 )
 format = 1
