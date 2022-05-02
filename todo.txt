@@ -1,9 +1,15 @@
-what's left to do in base character:
-slashing
-charging up the shot
+player interactions:
+- have two players on the screen
+- make sure they're seperate instances
+- have them be able to shoot each other
+- slash deflects bullets
+- respawers
+- 
+
 
 
 
 feel based stuff:
 - have gun kb be slighly based on the x dir too
 - have an input buffer 
+- variable jump height

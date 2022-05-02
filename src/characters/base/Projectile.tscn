@@ -7,6 +7,7 @@
 extents = Vector2( 12, 6 )
 
 [node name="Projectile" type="Area2D" groups=["projectile"]]
+rotation = 1.5708
 script = ExtResource( 2 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
