@@ -57,6 +57,7 @@ points = PoolVector2Array( 32, 32, 0, 32, 0, 0, 32, 0 )
 
 [node name="KinematicBody2D" parent="." instance=ExtResource( 1 )]
 position = Vector2( 955, 76 )
+air_friction = 0.2
 
 [node name="TileMap" type="TileMap" parent="." groups=["floor"]]
 tile_set = SubResource( 1 )

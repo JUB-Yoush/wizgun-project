@@ -5,11 +5,11 @@ export var speed:float = 300.0
 export var max_speed:Vector2 = Vector2(1500,1500)
 export var jump_str:float = 500.0
 export (float,0,1.0) var friction = 0.2
+export (float,0,1.0) var air_friction = 0.02
 export (float,0,1.0) var acceleration = 0.2
 export var gravity:float = 25
 const MAX_GRAVITY = 1000
 const UP = Vector2.UP
-
 
 # SLIDING --------------------------------
 export var slide_speed:float = 600
@@ -27,17 +27,23 @@ var gun_cool_time:float = 0.3
 var gun_cooling = false
 
 #SLASHING -----------------------------
-export var slash_speed:float = 200
-export var slash_stop_speed:float = 100
+export var slash_speed:Vector2 = Vector2(1000,750)
+var velocity_at_press:Vector2 = Vector2.ZERO
+export var slash_time:int = 15
+export var slash_active_frames:int = 6
+var slashed_in_jump:bool = false
 
+# SLASH ENDLAG
+export var slash_recovery_frames:int = 15
 
+# states for state machine
 enum States {
 	ON_GROUND,
 	SLIDING,
 	SLASHING,
 	SHOOTING,
 	IN_AIR,
-	AIRDODGE
+	SLASH_ENDLAG
 	}
 
 
@@ -51,6 +57,7 @@ func _ready():
 
 func _physics_process(delta):
 	print(_state)
+	#Finite state machine
 	match _state:
 		States.ON_GROUND:
 			state_on_ground(delta)
@@ -61,22 +68,28 @@ func _physics_process(delta):
 		States.SHOOTING:
 			state_shooting(delta,last_dir)
 		States.SLASHING:
-			state_slashing(delta)
+			state_slashing(delta,last_dir)
+		States.SLASH_ENDLAG:
+			state_slash_endlag()
 	
 	#print(_state)
 			
 	
 # STATES ---------------------------------------------------------
 func state_on_ground(delta):
+	slashed_in_jump = false
+	if is_on_floor() == false: _state = States.IN_AIR
 	update_dir()
 	jump()
 	move(delta)
 	slide()
 	shoot()
-	if is_on_floor() == false: _state = States.IN_AIR
+	slash()
+	
 	
 	
 func state_sliding(delta:float, passed_in_dir:Vector2):
+	if is_on_floor() == false: _state = States.IN_AIR
 	#set to slide then set back to on ground when min speed reached
 	velocity.x = slide_velocity.x 
 	slide_velocity.x = abs(slide_velocity.x - slide_friction) 
@@ -89,8 +102,32 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	
 	
 	
-func state_slashing(delta):
-	pass
+func state_slashing(delta,dir_at_press:Vector2):
+	#get cardinal dir
+	var slashing_dir:Vector2 = Vector2.ZERO
+	if dir_at_press.y == 0:
+		slashing_dir.x = dir_at_press.x
+	else:
+		slashing_dir.y = dir_at_press.y
+		
+	velocity = slashing_dir * slash_speed
+	velocity = move_and_slide(velocity,UP)
+	
+	slash_time += 1
+	print("slash time" , slash_time)
+	if slash_time >= slash_active_frames:
+		slash_time = 0
+		_state = States.SLASH_ENDLAG
+	
+func state_slash_endlag():
+	slash_time += 1
+	print("slash recovery" , slash_time)
+	if slash_time >= slash_recovery_frames:
+		slash_time = 0
+		velocity = Vector2.ZERO
+		_state = States.IN_AIR
+	
+	
 
 func state_shooting(delta:float,dir_at_press:Vector2):
 	ammo -= 1
@@ -117,12 +154,14 @@ func state_in_air(delta):
 	update_dir()
 	move(delta)
 	shoot()
+	slash()
 	if is_on_floor():
 		_state = States.ON_GROUND
 
 
-# COMPONENTS ---------------------------------------------------------
+# STATE COMPONENTS (the stuff the player can do, each state has some of each) ---------------------------------------------------------
 func update_dir():
+	#checks what direction the player is holding, last_dir checks where they're facing.
 	dir.x = Input.get_action_strength("p1_right") - Input.get_action_strength("p1_left")
 	dir.y = Input.get_action_strength("p1_down") - Input.get_action_strength("p1_up")
 	if dir.x != 0:
@@ -139,7 +178,6 @@ func move(delta):
 	velocity = move_and_slide(velocity,UP)
 
 func jump():
-	#print(dir.y)
 	var is_jumping:bool = Input.is_action_just_pressed("p1_jump") and dir.y <= 0
 	if is_jumping:
 		velocity.y = -jump_str
@@ -160,3 +198,7 @@ func shoot():
 		gun_cooling = true
 		_state = States.SHOOTING
 		
+func slash():
+	if Input.is_action_just_pressed("p1_sword") and slashed_in_jump == false:
+		slashed_in_jump = true
+		_state = States.SLASHING
