@@ -17,3 +17,5 @@ feel based stuff:
 - have gun kb be slighly based on the x dir too
 - have an input buffer 
 - variable jump height
+- jump speed carries into slide
+- slide just reduces your friction until you stop?

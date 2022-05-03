@@ -11,7 +11,13 @@ var input_jump:String
 var input_gun:String
 var input_sword:String
 
+
 var player_tag:String
+
+# RESPAWNING ---------------------------------------	 
+var is_alive:bool = true
+var respawn_time:float = 2
+onready var respawnTimer:Timer = $RespawnTimer
 
 # MOVEMENT ----------------------------------------
 export var speed:float = 300.0
@@ -42,7 +48,7 @@ var gun_cooling = false
 #SLASHING -----------------------------
 export var slash_speed:Vector2 = Vector2(1000,750)
 var velocity_at_press:Vector2 = Vector2.ZERO
-export var slash_time:int = 0
+var slash_time:int = 0
 export var slash_active_frames:int = 6
 var slashed_in_jump:bool = false
 
@@ -56,7 +62,8 @@ enum States {
 	SLASHING,
 	SHOOTING,
 	IN_AIR,
-	SLASH_ENDLAG
+	SLASH_ENDLAG,
+	RESPAWNING
 	}
 
 
@@ -67,6 +74,7 @@ var _state = States.ON_GROUND
 
 func _ready():
 	gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
+	respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	
 
 func _physics_process(delta):
@@ -85,6 +93,8 @@ func _physics_process(delta):
 			state_slashing(delta,last_dir)
 		States.SLASH_ENDLAG:
 			state_slash_endlag()
+		States.RESPAWNING:
+			state_respawning()
 	
 	#print(_state)
 			
@@ -156,9 +166,9 @@ func state_shooting(delta:float,dir_at_press:Vector2):
 	
 	match player_tag:
 		"p1":
-			proj.parent_enum = proj.PARENTS.P1
+			proj.parent_tag = proj.PARENTS[0]
 		"p2":
-			proj.parent_enum = proj.PARENTS.P2
+			proj.parent_tag = proj.PARENTS[1]
 			
 	get_parent().add_child(proj)
 	
@@ -176,13 +186,32 @@ func state_in_air(delta):
 		_state = States.ON_GROUND
 
 
+func state_respawning():
+	set_visible(false)
+	$CollisionShape2D.disabled = true
+	$Area2D/CollisionShape2DClone.disabled = true
+	
+func on_respawnTimer_timeout():
+	is_alive = true
+	var respawnPosition = get_parent().get_respawn_position()
+	position = respawnPosition.position
+	set_visible(true)
+	$CollisionShape2D.disabled = false
+	$Area2D/CollisionShape2DClone.disabled = false
+	reset_state()
+	pass
+	
+
 func reset_state():
 	if is_on_floor():
 		_state = States.ON_GROUND
 	elif !is_on_floor():
 		_state = States.IN_AIR
 
-# STATE COMPONENTS (the stuff the player can do, each state has some of each) ---------------------------------------------------------
+
+
+
+# STATE COMPONENTS ---------------------------------------------------------
 func update_dir():
 	#checks what direction the player is holding, last_dir checks where they're facing.
 	dir.x = Input.get_action_strength(input_right) - Input.get_action_strength(input_left)
@@ -204,7 +233,7 @@ func jump():
 	var is_jumping:bool = Input.is_action_just_pressed(input_jump) and dir.y <= 0
 	if is_jumping:
 		velocity.y = -jump_str
-		_state = States.IN_AIR
+		#_state = States.IN_AIR
 		
 	if Input.is_action_just_released(input_jump) and velocity.y < 0:
 		velocity.y = lerp(velocity.y, 0, 0.5)
@@ -224,3 +253,16 @@ func slash():
 	if Input.is_action_just_pressed(input_sword) and slashed_in_jump == false:
 		slashed_in_jump = true
 		_state = States.SLASHING
+		
+func on_player_defeat():
+	is_alive = false
+	_state = States.RESPAWNING
+	respawnTimer.start(respawn_time)
+	#hide the player
+	#set a respawn timer
+	#once the respawn timer has gone off, put the player back 
+	pass
+#---------------------------------------------------------------------------------
+
+
+
