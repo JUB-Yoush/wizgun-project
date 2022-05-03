@@ -1,8 +1,10 @@
 extends Area2D
 
 var dir:Vector2 = Vector2.ZERO
+var lifetime = 0.3
 export var speed:float = 10
 onready var visibilityNotif = $VisibilityNotifier2D
+onready var lifespanTimer = $LifespanTimer
 
 enum PARENTS{
 	P1,
@@ -10,7 +12,10 @@ enum PARENTS{
 }
 var parent_enum
 # Called when the node enters the scene tree for the first time.
-func _ready():
+func _ready(): 
+	connect("body_entered",self,"on_body_entered")
+	lifespanTimer.connect("timeout",self,"on_lifespan_timeout")
+	lifespanTimer.start(lifetime)
 	visibilityNotif.connect("screen_exited",self,"exited_screen")
 	if parent_enum == PARENTS.P1:
 		set_modulate("#1b22d3")
@@ -33,10 +38,6 @@ func _ready():
 			$Sprite.rotation_degrees = 270
 			$CollisionShape2D.rotation_degrees = 270
 			
-		
-	
-
-
 func _physics_process(delta):
 	var velocity = speed * dir
 	position += velocity
@@ -44,3 +45,17 @@ func _physics_process(delta):
 
 func exited_screen():
 	queue_free()
+
+func on_lifespan_timeout():
+	queue_free()
+	
+
+func on_body_entered(body:PhysicsBody2D):
+	if body == null:
+		print('tile lmao')
+	else:
+		print(body.name)
+	
+func on_area_entered(area:Area2D):
+	print(area.name)
+	

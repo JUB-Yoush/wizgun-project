@@ -25,9 +25,9 @@ const MAX_GRAVITY = 1000
 const UP = Vector2.UP
 
 # SLIDING --------------------------------
-export var slide_speed:float = 600
+export var slide_speed:float = 650
 var slide_velocity:Vector2 = Vector2.ZERO
-export var slide_friction:float = 20
+export var slide_friction:float = 25
 export var slide_stop_speed:float = 100
 
 

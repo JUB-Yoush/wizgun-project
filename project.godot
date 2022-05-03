@@ -100,8 +100,9 @@ p2_sword={
 [layer_names]
 
 2d_physics/layer_1="enviroment"
-2d_physics/layer_2="p1"
-2d_physics/layer_3="p2"
+2d_physics/layer_2="players"
+2d_physics/layer_3="projectiles"
+2d_physics/layer_4="items"
 
 [physics]
 

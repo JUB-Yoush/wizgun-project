@@ -1,9 +1,13 @@
 player interactions:
-- have two players on the screen
+DONE
+- have two players on the screen 
 - make sure they're seperate instances
+DOING
 - have them be able to shoot each other
 - slash deflects bullets
 - respawers
+- i frames on slide
+- picking up more ammo
 - 
 
 
