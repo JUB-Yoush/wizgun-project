@@ -1,8 +1,14 @@
 extends Area2D
 
+var time_scale = 0.03
+var duration = 0.7
+
 var dir:Vector2 = Vector2.ZERO
-var lifetime = 0.3
+var lifetime = 5
 export var speed:float = 10
+export var reflected_speed = 20
+var velocity:Vector2
+var reflected:bool = false
 onready var visibilityNotif = $VisibilityNotifier2D
 onready var lifespanTimer = $LifespanTimer
 
@@ -37,7 +43,7 @@ func _ready():
 			$CollisionShape2D.rotation_degrees = 270
 			
 func _physics_process(delta):
-	var velocity = speed * dir
+	velocity = speed * dir
 	position += velocity
 	pass
 
@@ -56,9 +62,21 @@ func on_body_entered(body:PhysicsBody2D):
 
 			pass
 		elif body.player_tag != parent_tag:
-			body.on_player_defeat()
+			if body._state == body.States.SLASHING:
+				reflect(body)
+			else:
+				body.on_player_defeat()
+				
 			
 	
 func on_area_entered(area:Area2D):
 	print(area.name)
 	
+func reflect(body:KinematicBody2D):
+	if parent_tag == PARENTS[1]: parent_tag = PARENTS[0]
+	elif parent_tag ==  PARENTS[0]: parent_tag = PARENTS[1]
+	dir = body.last_dir
+	speed = reflected_speed
+	set_modulate("#ffffff")
+	body.emit_signal("start_hitstop", time_scale, duration)
+	set_modulate("#10940f")

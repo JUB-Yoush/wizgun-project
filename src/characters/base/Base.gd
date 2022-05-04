@@ -52,8 +52,11 @@ var slash_time:int = 0
 export var slash_active_frames:int = 6
 var slashed_in_jump:bool = false
 
-# SLASH ENDLAG
+# SLASH ENDLAG --------------------------------
 export var slash_recovery_frames:int = 15
+
+# SIGNALS -------------------------------------
+signal start_hitstop(time_scale, duration)
 
 # states for state machine
 enum States {
@@ -75,6 +78,7 @@ var _state = States.ON_GROUND
 func _ready():
 	gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
 	respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
+	connect("start_hitstop",get_parent(),"make_hitstop")
 	
 
 func _physics_process(delta):
@@ -263,6 +267,7 @@ func on_player_defeat():
 	#once the respawn timer has gone off, put the player back 
 	pass
 #---------------------------------------------------------------------------------
+
 
 
 
