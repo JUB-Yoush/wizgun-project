@@ -55,8 +55,13 @@ var slashed_in_jump:bool = false
 # SLASH ENDLAG --------------------------------
 export var slash_recovery_frames:int = 15
 
-# SIGNALS -------------------------------------
+# HITSTOP ----------------------------------------
+var time_scale = 0.03
+var duration = 0.7
 signal start_hitstop(time_scale, duration)
+
+# SIGNALS -------------------------------------
+
 
 # states for state machine
 enum States {
@@ -66,7 +71,8 @@ enum States {
 	SHOOTING,
 	IN_AIR,
 	SLASH_ENDLAG,
-	RESPAWNING
+	RESPAWNING,
+	HITSTOP	
 	}
 
 
@@ -99,6 +105,9 @@ func _physics_process(delta):
 			state_slash_endlag()
 		States.RESPAWNING:
 			state_respawning()
+		States.HITSTOP:
+			state_hitstop()
+		
 	
 	#print(_state)
 			
@@ -194,7 +203,9 @@ func state_respawning():
 	set_visible(false)
 	$CollisionShape2D.disabled = true
 	$Area2D/CollisionShape2DClone.disabled = true
-	
+
+
+
 func on_respawnTimer_timeout():
 	is_alive = true
 	var respawnPosition = get_parent().get_respawn_position()
@@ -212,7 +223,9 @@ func reset_state():
 	elif !is_on_floor():
 		_state = States.IN_AIR
 
-
+func state_hitstop():
+	pass
+	
 
 
 # STATE COMPONENTS ---------------------------------------------------------
@@ -268,6 +281,13 @@ func on_player_defeat():
 	pass
 #---------------------------------------------------------------------------------
 
+func temp_hitstop_state(last_state):
+	_state = States.HITSTOP
+	emit_signal("start_hitstop",time_scale,duration)
+	print('among')
+	yield(get_parent(),"hitstop_over")
+	print('us')
+	_state = last_state
 
 
 

@@ -5,7 +5,7 @@ var duration = 0.7
 
 var dir:Vector2 = Vector2.ZERO
 var lifetime = 5
-export var speed:float = 10
+export var speed:float = 7
 export var reflected_speed = 5
 var velocity:Vector2
 var reflected:bool = false
@@ -29,18 +29,22 @@ func _ready():
 		set_modulate("#d31b1b")
 	
 	match dir:
-		Vector2(0,1):
+		Vector2(1,0):
+			position.x += 25
 			$Sprite.rotation_degrees = 0
 			$CollisionShape2D.rotation_degrees = 0
 			$Sprite.set_flip_h(false)
-		Vector2(0,-1):
+		Vector2(-1,0):
+			position.x -= 25
 			$Sprite.rotation_degrees = 0
 			$CollisionShape2D.rotation_degrees = 0
 			$Sprite.set_flip_h(true)
-		Vector2(1,0):
+		Vector2(0,1):
+			position.y += 25
 			$Sprite.rotation_degrees = 90
 			$CollisionShape2D.rotation_degrees = 90
-		Vector2(-1,0):
+		Vector2(0,-1):
+			position.y -= 25
 			$Sprite.rotation_degrees = 270
 			$CollisionShape2D.rotation_degrees = 270
 			
@@ -60,13 +64,10 @@ func on_body_entered(body:PhysicsBody2D):
 	if body == null:
 		pass
 	else:
-		if body.player_tag == parent_tag:
-
-			pass
-		elif body.player_tag != parent_tag:
-			if body._state == body.States.SLASHING:
+		if body._state == body.States.SLASHING:
 				reflect(body)
-			else:
+				
+		if body.player_tag != parent_tag:
 				body.on_player_defeat()
 				
 			
@@ -77,12 +78,13 @@ func on_area_entered(area:Area2D):
 func reflect(body:KinematicBody2D):
 	dir = Vector2.ZERO
 	set_modulate("#ffffff")
-	emit_signal("start_hitstop",self, time_scale, duration)
-	#make_hitstop(time_scale, duration)
+	body.temp_hitstop_state(body._state)
+	emit_signal("start_hitstop",time_scale, duration)
 	yield(get_parent(),"hitstop_over")
 	set_modulate("#10940f")
-	if parent_tag == PARENTS[1]: parent_tag = PARENTS[0]
-	elif parent_tag ==  PARENTS[0]: parent_tag = PARENTS[1]
+	if parent_tag != body.player_tag:
+		if parent_tag == PARENTS[1]: parent_tag = PARENTS[0]
+		elif parent_tag ==  PARENTS[0]: parent_tag = PARENTS[1]
 	dir = body.last_dir
 	speed += reflected_speed
 	
