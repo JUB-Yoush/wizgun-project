@@ -82,6 +82,7 @@ func reflect(body:KinematicBody2D):
 	emit_signal("start_hitstop",time_scale, duration)
 	yield(get_parent(),"hitstop_over")
 	set_modulate("#10940f")
+	
 	if parent_tag != body.player_tag:
 		if parent_tag == PARENTS[1]: parent_tag = PARENTS[0]
 		elif parent_tag ==  PARENTS[0]: parent_tag = PARENTS[1]

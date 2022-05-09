@@ -4,7 +4,7 @@
 [ext_resource path="res://src/characters/base/Projectile.gd" type="Script" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 11, 6 )
+extents = Vector2( 6, 3 )
 
 [node name="Projectile" type="Area2D" groups=["projectile"]]
 collision_layer = 4
@@ -13,11 +13,10 @@ script = ExtResource( 2 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
 position = Vector2( 7.15256e-07, 1.19209e-07 )
-scale = Vector2( 1.4, 0.7 )
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( -1.19209e-07, 0 )
-scale = Vector2( 0.340625, 0.2 )
+scale = Vector2( 0.2, 0.12 )
 texture = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

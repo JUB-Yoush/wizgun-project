@@ -11,7 +11,6 @@ func get_respawn_position():
 	return respawn_position
 
 func make_hitstop(timeScale, duration):
-	#connect("hitstop_over",caller, "")
 	#timeScale = how slow the hitstop is (0.03)
 	#duration = how long it lasts in seconds (0.7)
 	Engine.time_scale = timeScale

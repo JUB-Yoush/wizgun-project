@@ -2,18 +2,28 @@ player interactions:
 DONE
 - have two players on the screen 
 - make sure they're seperate instances
-DOING
+- respawers
 - have them be able to shoot each other
 - slash deflects bullets
-- respawers
-- i frames on slide
 - picking up more ammo
-- 
+- smaller hitbox on slide
+
+DOING
+- make the level
+- different level geometry 
+- change physics and sizes for the new dimensions
+- get character area stuff setup
+
+
+
+player interaction pro and con list:
+SEPRATE LAYERS
 
 
 
 
 feel based stuff:
+- players move past each other
 - have gun kb be slighly based on the x dir too
 - have an input buffer 
 - variable jump height

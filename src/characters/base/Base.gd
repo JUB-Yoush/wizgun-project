@@ -14,12 +14,20 @@ var input_sword:String
 
 var player_tag:String
 
+# CHILD NODES ---------------------------------------
+onready var hitbox = $Hitbox
+onready var sprite = $Sprite
+onready var animPlayer = $AnimationPlayer
+onready var area = $Area2D
+
+
 # RESPAWNING ---------------------------------------	 
 var is_alive:bool = true
 var respawn_time:float = 2
 onready var respawnTimer:Timer = $RespawnTimer
 
 # MOVEMENT ----------------------------------------
+
 export var speed:float = 300.0
 export var max_speed:Vector2 = Vector2(1500,1500)
 export var jump_str:float = 500.0
@@ -35,7 +43,8 @@ export var slide_speed:float = 650
 var slide_velocity:Vector2 = Vector2.ZERO
 export var slide_friction:float = 25
 export var slide_stop_speed:float = 100
-
+var slidingHitbox := load("res://src/characters/base/SlidingHitbox.tres")
+var standingHitbox := load("res://src/characters/base/StandingHitbox.tres")
 
 #SHOOTING ------------------------------
 export var Projectile:PackedScene = preload("res://src/characters/base/Projectile.tscn")
@@ -85,6 +94,7 @@ func _ready():
 	gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
 	respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
+	area.connect("area_entered",self,"on_area_entered")
 	
 
 func _physics_process(delta):
@@ -128,12 +138,16 @@ func state_on_ground(delta):
 func state_sliding(delta:float, passed_in_dir:Vector2):
 	if is_on_floor() == false: _state = States.IN_AIR
 	#set to slide then set back to on ground when min speed reached
+	hitbox.shape = slidingHitbox
+	hitbox.position.y = 6
 	velocity.x = slide_velocity.x 
 	slide_velocity.x = abs(slide_velocity.x - slide_friction) 
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
 	velocity.x = velocity.x * passed_in_dir.x
 	velocity = move_and_slide(velocity,UP)
 	if slide_velocity.x <= slide_stop_speed:
+		hitbox.shape = standingHitbox
+		hitbox.position.y = 0
 		_state = States.ON_GROUND
 	
 	
@@ -201,8 +215,8 @@ func state_in_air(delta):
 
 func state_respawning():
 	set_visible(false)
-	$CollisionShape2D.disabled = true
-	$Area2D/CollisionShape2DClone.disabled = true
+	hitbox.disabled = true
+	area.monitoring = false
 
 
 
@@ -211,8 +225,8 @@ func on_respawnTimer_timeout():
 	var respawnPosition = get_parent().get_respawn_position()
 	position = respawnPosition.position
 	set_visible(true)
-	$CollisionShape2D.disabled = false
-	$Area2D/CollisionShape2DClone.disabled = false
+	hitbox.disabled = false
+	area.monitoring = true
 	reset_state()
 	pass
 	
