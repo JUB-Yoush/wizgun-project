@@ -94,7 +94,7 @@ func _ready():
 	gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
 	respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
-	area.connect("area_entered",self,"on_area_entered")
+	#area.connect("area_entered",self,"on_area_entered")
 	
 
 func _physics_process(delta):
