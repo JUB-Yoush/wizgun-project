@@ -24,13 +24,12 @@ onready var area = $Area2D
 # RESPAWNING ---------------------------------------	 
 var is_alive:bool = true
 var respawn_time:float = 2
-onready var respawnTimer:Timer = $RespawnTimer
 
 # MOVEMENT ----------------------------------------
 
-export var speed:float = 300.0
+export var speed:float = 250.0
 export var max_speed:Vector2 = Vector2(1500,1500)
-export var jump_str:float = 500.0
+export var jump_str:float = 425.0
 export (float,0,1.0) var friction = 0.2
 export (float,0,1.0) var air_friction = 0.02
 export (float,0,1.0) var acceleration = 0.2
@@ -39,7 +38,7 @@ const MAX_GRAVITY = 1000
 const UP = Vector2.UP
 
 # SLIDING --------------------------------
-export var slide_speed:float = 650
+export var slide_speed:float = 500
 var slide_velocity:Vector2 = Vector2.ZERO
 export var slide_friction:float = 25
 export var slide_stop_speed:float = 100
@@ -48,14 +47,14 @@ var standingHitbox := load("res://src/characters/base/StandingHitbox.tres")
 
 #SHOOTING ------------------------------
 export var Projectile:PackedScene = preload("res://src/characters/base/Projectile.tscn")
-export var gun_recoil:Vector2 = Vector2(500,500)
-onready var gunCooldown = $GunCooldown
+export var gun_recoil:Vector2 = Vector2(400,400)
+#onready var gunCooldown = $GunCooldown
 export var ammo = 99
 var gun_cool_time:float = 0.3
 var gun_cooling = false
 
 #SLASHING -----------------------------
-export var slash_speed:Vector2 = Vector2(1000,750)
+export var slash_speed:Vector2 = Vector2(900,600)
 var velocity_at_press:Vector2 = Vector2.ZERO
 var slash_time:int = 0
 export var slash_active_frames:int = 6
@@ -91,8 +90,8 @@ var velocity = Vector2.ZERO
 var _state = States.ON_GROUND
 
 func _ready():
-	gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
-	respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
+	#gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
+	#respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
 	#area.connect("area_entered",self,"on_area_entered")
 	
@@ -177,6 +176,7 @@ func state_slash_endlag():
 	
 
 func state_shooting(delta:float,dir_at_press:Vector2):
+	gun_cooling = true
 	ammo -= 1
 	#prioritize up and down aiming over left and right
 	var aiming_dir:Vector2 = Vector2.ZERO
@@ -218,18 +218,6 @@ func state_respawning():
 	hitbox.disabled = true
 	area.monitoring = false
 
-
-
-func on_respawnTimer_timeout():
-	is_alive = true
-	var respawnPosition = get_parent().get_respawn_position()
-	position = respawnPosition.position
-	set_visible(true)
-	hitbox.disabled = false
-	area.monitoring = true
-	reset_state()
-	pass
-	
 
 func reset_state():
 	if is_on_floor():
@@ -276,9 +264,10 @@ func slide():
 
 func shoot():
 	if Input.is_action_just_pressed(input_gun) and ammo > 0 and gun_cooling == false:
-		gunCooldown.start(gun_cool_time)
-		gun_cooling = true
+		#gunCooldown.start(gun_cool_time)
 		_state = States.SHOOTING
+		yield(get_tree().create_timer(gun_cool_time), "timeout")
+		gun_cooling = false
 		
 func slash():
 	if Input.is_action_just_pressed(input_sword) and slashed_in_jump == false:
@@ -288,19 +277,22 @@ func slash():
 func on_player_defeat():
 	is_alive = false
 	_state = States.RESPAWNING
-	respawnTimer.start(respawn_time)
-	#hide the player
-	#set a respawn timer
-	#once the respawn timer has gone off, put the player back 
+	yield(get_tree().create_timer(respawn_time), "timeout")
+	#---after timer---
+	is_alive = true
+	var respawnPosition = get_parent().get_respawn_position()
+	position = respawnPosition.position
+	set_visible(true)
+	hitbox.disabled = false
+	area.monitoring = true
+	reset_state()
 	pass
 #---------------------------------------------------------------------------------
 
 func temp_hitstop_state(last_state):
 	_state = States.HITSTOP
 	emit_signal("start_hitstop",time_scale,duration)
-	print('among')
 	yield(get_parent(),"hitstop_over")
-	print('us')
 	_state = last_state
 
 
