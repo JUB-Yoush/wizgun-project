@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://icon.png" type="Texture" id=1]
+[ext_resource path="res://assets/tilesheet.png" type="Texture" id=1]
 [ext_resource path="res://src/characters/base/Base.gd" type="Script" id=2]
 [ext_resource path="res://src/characters/base/StandingHitbox.tres" type="Shape2D" id=4]
+
+[sub_resource type="Animation" id=1]
+resource_name = "run"
 
 [node name="Base" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
@@ -11,8 +14,12 @@ script = ExtResource( 2 )
 ammo = 3
 
 [node name="Sprite" type="Sprite" parent="."]
-scale = Vector2( 0.25, 0.25 )
 texture = ExtResource( 1 )
+centered = false
+offset = Vector2( -8, -8 )
+hframes = 8
+region_enabled = true
+region_rect = Rect2( 0, 0, 128, 16 )
 
 [node name="Hitbox" type="CollisionShape2D" parent="."]
 shape = ExtResource( 4 )
@@ -26,3 +33,4 @@ shape = ExtResource( 4 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Hitbox")
+anims/run = SubResource( 1 )

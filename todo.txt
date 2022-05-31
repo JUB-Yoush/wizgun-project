@@ -15,9 +15,13 @@ DOING
 - get character area stuff setup
 
 
-
-player interaction pro and con list:
-SEPRATE LAYERS
+P ANIMATIONS:
+- flip based on direction
+- no idle for now
+- run
+- slide
+- jump
+-death
 
 
 

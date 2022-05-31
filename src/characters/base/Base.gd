@@ -27,7 +27,7 @@ var respawn_time:float = 2
 
 # MOVEMENT ----------------------------------------
 
-export var speed:float = 250.0
+export var speed:float = 200.0
 export var max_speed:Vector2 = Vector2(1500,1500)
 export var jump_str:float = 425.0
 export (float,0,1.0) var friction = 0.2
@@ -58,10 +58,16 @@ export var slash_speed:Vector2 = Vector2(900,600)
 var velocity_at_press:Vector2 = Vector2.ZERO
 var slash_time:int = 0
 export var slash_active_frames:int = 6
+export var slash_active_time:float = (59/60)
+#onready var slashActiveTimer: = get_tree().create_timer(slash_active_time)
+var sat_timer_started = false
 var slashed_in_jump:bool = false
 
 # SLASH ENDLAG --------------------------------
 export var slash_recovery_frames:int = 15
+export var slash_recovery_time:float = 15/60
+onready var slashRecoveryTimer: = get_tree().create_timer(slash_recovery_time)
+var srt_timer_started = false
 
 # HITSTOP ----------------------------------------
 var time_scale = 0.03
@@ -160,7 +166,10 @@ func state_slashing(delta,dir_at_press:Vector2):
 		slashing_dir.y = dir_at_press.y
 	velocity = slashing_dir * slash_speed
 	velocity = move_and_slide(velocity,UP)
-
+	
+	# var slashActiveTimer: = get_tree().create_timer(slash_active_time)
+	#yield(get_tree().create_timer(slash_active_time), "timeout")
+	
 	slash_time += 1
 	if slash_time >= slash_active_frames:
 		slash_time = 0
