@@ -1,11 +1,144 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://assets/tilesheet.png" type="Texture" id=1]
 [ext_resource path="res://src/characters/base/Base.gd" type="Script" id=2]
 [ext_resource path="res://src/characters/base/StandingHitbox.tres" type="Shape2D" id=4]
 
+[sub_resource type="Animation" id=2]
+resource_name = "air_fall"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 6 ]
+}
+
+[sub_resource type="Animation" id=3]
+resource_name = "air_rise"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 5 ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "death"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 7 ]
+}
+
+[sub_resource type="Animation" id=8]
+resource_name = "idle"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 2 ]
+}
+
 [sub_resource type="Animation" id=1]
 resource_name = "run"
+length = 0.3
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2 ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "slash"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 4 ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "slash_endlag"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 8 ]
+}
+
+[sub_resource type="Animation" id=5]
+resource_name = "slide"
+length = 0.1
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 3 ]
+}
 
 [node name="Base" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
@@ -17,9 +150,10 @@ ammo = 3
 texture = ExtResource( 1 )
 centered = false
 offset = Vector2( -8, -8 )
-hframes = 8
+hframes = 9
+frame = 2
 region_enabled = true
-region_rect = Rect2( 0, 0, 128, 16 )
+region_rect = Rect2( 0, 0, 144, 16 )
 
 [node name="Hitbox" type="CollisionShape2D" parent="."]
 shape = ExtResource( 4 )
@@ -33,4 +167,11 @@ shape = ExtResource( 4 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Hitbox")
+anims/air_fall = SubResource( 2 )
+anims/air_rise = SubResource( 3 )
+anims/death = SubResource( 4 )
+anims/idle = SubResource( 8 )
 anims/run = SubResource( 1 )
+anims/slash = SubResource( 6 )
+anims/slash_endlag = SubResource( 7 )
+anims/slide = SubResource( 5 )

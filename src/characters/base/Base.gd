@@ -15,10 +15,10 @@ var input_sword:String
 var player_tag:String
 
 # CHILD NODES ---------------------------------------
-onready var hitbox = $Hitbox
-onready var sprite = $Sprite
-onready var animPlayer = $AnimationPlayer
-onready var area = $Area2D
+onready var hitbox := $Hitbox
+onready var sprite := $Sprite
+onready var animPlayer := $AnimationPlayer
+onready var area := $Area2D
 
 
 # RESPAWNING ---------------------------------------	 
@@ -38,10 +38,10 @@ const MAX_GRAVITY = 1000
 const UP = Vector2.UP
 
 # SLIDING --------------------------------
-export var slide_speed:float = 500
+export var slide_speed:float = 350
 var slide_velocity:Vector2 = Vector2.ZERO
-export var slide_friction:float = 25
-export var slide_stop_speed:float = 100
+export var slide_friction:float = 15
+export var slide_stop_speed:float = 75
 var slidingHitbox := load("res://src/characters/base/SlidingHitbox.tres")
 var standingHitbox := load("res://src/characters/base/StandingHitbox.tres")
 
@@ -54,7 +54,7 @@ var gun_cool_time:float = 0.3
 var gun_cooling = false
 
 #SLASHING -----------------------------
-export var slash_speed:Vector2 = Vector2(900,600)
+export var slash_speed:Vector2 = Vector2(700,500)
 var velocity_at_press:Vector2 = Vector2.ZERO
 var slash_time:int = 0
 export var slash_active_frames:int = 6
@@ -142,6 +142,7 @@ func state_on_ground(delta):
 	
 func state_sliding(delta:float, passed_in_dir:Vector2):
 	if is_on_floor() == false: _state = States.IN_AIR
+	animPlayer.play("slide")
 	#set to slide then set back to on ground when min speed reached
 	hitbox.shape = slidingHitbox
 	hitbox.position.y = 6
@@ -159,6 +160,7 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	
 func state_slashing(delta,dir_at_press:Vector2):
 	#get cardinal dir
+	animPlayer.play("slash")
 	var slashing_dir:Vector2 = Vector2.ZERO
 	if dir_at_press.y == 0:
 		slashing_dir.x = dir_at_press.x
@@ -176,6 +178,7 @@ func state_slashing(delta,dir_at_press:Vector2):
 		_state = States.SLASH_ENDLAG
 	
 func state_slash_endlag():
+	animPlayer.play("slash_endlag")
 	slash_time += 1
 	if slash_time >= slash_recovery_frames:
 		slash_time = 0
@@ -218,12 +221,18 @@ func state_in_air(delta):
 	move(delta)
 	shoot()
 	slash()
+	
 	if is_on_floor():
 		_state = States.ON_GROUND
-
+		
+	if velocity.y < 0:
+		animPlayer.play("air_rise")
+	elif velocity.y > 0:
+		animPlayer.play("air_fall")
 
 func state_respawning():
-	set_visible(false)
+	#set_visible(true)
+	animPlayer.play("death")
 	hitbox.disabled = true
 	area.monitoring = false
 
@@ -247,6 +256,11 @@ func update_dir():
 	if dir.x != 0:
 		last_dir.x = dir.x
 	last_dir.y = dir.y
+	
+	if dir.x < 0:
+		sprite.flip_h = true
+	elif dir.x > 0:
+		sprite.flip_h = false
 
 func move(delta):
 	if dir.x != 0:
@@ -256,6 +270,10 @@ func move(delta):
 		
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
 	velocity = move_and_slide(velocity,UP)
+	if velocity.x != 0:
+		animPlayer.play("run")
+	else:
+		animPlayer.play("idle")
 
 func jump():
 	var is_jumping:bool = Input.is_action_just_pressed(input_jump) and dir.y <= 0
