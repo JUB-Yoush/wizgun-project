@@ -17,6 +17,8 @@ var player_tag:String
 # CHILD NODES ---------------------------------------
 onready var hitbox := $Hitbox
 onready var sprite := $Sprite
+onready var gun := $Gun
+onready var gunSprite := $Gun/GunSprite
 onready var animPlayer := $AnimationPlayer
 onready var area := $Area2D
 
@@ -50,8 +52,9 @@ export var Projectile:PackedScene = preload("res://src/characters/base/Projectil
 export var gun_recoil:Vector2 = Vector2(400,400)
 #onready var gunCooldown = $GunCooldown
 export var ammo = 99
+var has_gun := true
 var gun_cool_time:float = 0.3
-var gun_cooling = false
+var gun_cooling := false
 
 #SLASHING -----------------------------
 export var slash_speed:Vector2 = Vector2(700,500)
@@ -213,8 +216,7 @@ func state_shooting(delta:float,dir_at_press:Vector2):
 	
 	reset_state()
 
-func on_gunCooldown_timeout():
-	gun_cooling = false
+
 
 func state_in_air(delta):
 	update_dir()
@@ -257,10 +259,7 @@ func update_dir():
 		last_dir.x = dir.x
 	last_dir.y = dir.y
 	
-	if dir.x < 0:
-		sprite.flip_h = true
-	elif dir.x > 0:
-		sprite.flip_h = false
+	turn_char(dir)
 
 func move(delta):
 	if dir.x != 0:
@@ -323,4 +322,19 @@ func temp_hitstop_state(last_state):
 	_state = last_state
 
 
+# ANIMATION --------------------------------------------
+func turn_char(dir):
+	if dir.x < 0:
+		sprite.flip_h = true
+		gunSprite.flip_h = true
+		
+	elif dir.x > 0:
+		sprite.flip_h = false
+		gunSprite.flip_h = false
+	
+#	if dir_at_press.y == 0:
+#		aiming_dir.x = dir_at_press.x
+#	else:
+#		aiming_dir.y = dir_at_press.y
 
+# reposition bullet spawn based on dir held

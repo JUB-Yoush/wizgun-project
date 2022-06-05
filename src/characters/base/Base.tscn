@@ -151,7 +151,7 @@ texture = ExtResource( 1 )
 centered = false
 offset = Vector2( -8, -8 )
 hframes = 9
-frame = 2
+frame = 6
 region_enabled = true
 region_rect = Rect2( 0, 0, 144, 16 )
 
@@ -175,3 +175,22 @@ anims/run = SubResource( 1 )
 anims/slash = SubResource( 6 )
 anims/slash_endlag = SubResource( 7 )
 anims/slide = SubResource( 5 )
+
+[node name="Gun" type="Node2D" parent="."]
+
+[node name="GunSprite" type="Sprite" parent="Gun"]
+texture = ExtResource( 1 )
+centered = false
+offset = Vector2( -8, -8 )
+region_enabled = true
+region_rect = Rect2( 0, 16, 16, 16 )
+
+[node name="GunFlash" type="Sprite" parent="Gun/GunSprite"]
+position = Vector2( 16, 0 )
+texture = ExtResource( 1 )
+centered = false
+offset = Vector2( -8, -8 )
+region_enabled = true
+region_rect = Rect2( 16, 16, 16, 16 )
+
+[node name="BulletSpawn" type="Position2D" parent="Gun"]

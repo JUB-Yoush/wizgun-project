@@ -4,5 +4,7 @@
 [ext_resource path="res://src/characters/p1/Player1.gd" type="Script" id=2]
 
 [node name="Player1" instance=ExtResource( 1 )]
-modulate = Color( 0.0823529, 0.65098, 0.956863, 1 )
 script = ExtResource( 2 )
+
+[node name="Sprite" parent="." index="0"]
+modulate = Color( 0.0823529, 0.65098, 0.956863, 1 )

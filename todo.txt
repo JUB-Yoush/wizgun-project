@@ -7,11 +7,14 @@ DONE
 - slash deflects bullets
 - picking up more ammo
 - smaller hitbox on slide
+- change physics and sizes for the new dimensions
 
 DOING
+- find a good system to manage player animations (states of somekind???)
+- get the gun animations working, with firing and the gun turning to face the direction held
+
 - make the level
 - different level geometry 
-- change physics and sizes for the new dimensions
 - get character area stuff setup
 
 
@@ -22,7 +25,6 @@ P ANIMATIONS:
 - slide
 - jump
 -death
-
 
 
 
