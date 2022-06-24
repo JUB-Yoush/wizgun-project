@@ -177,6 +177,7 @@ anims/slash_endlag = SubResource( 7 )
 anims/slide = SubResource( 5 )
 
 [node name="Gun" type="Node2D" parent="."]
+rotation = 3.14159
 
 [node name="GunSprite" type="Sprite" parent="Gun"]
 texture = ExtResource( 1 )

@@ -19,6 +19,7 @@ onready var hitbox := $Hitbox
 onready var sprite := $Sprite
 onready var gun := $Gun
 onready var gunSprite := $Gun/GunSprite
+onready var gunFlashSprite := $Gun/GunSprite/GunFlash
 onready var animPlayer := $AnimationPlayer
 onready var area := $Area2D
 
@@ -324,17 +325,21 @@ func temp_hitstop_state(last_state):
 
 # ANIMATION --------------------------------------------
 func turn_char(dir):
+	print(dir)
 	if dir.x < 0:
 		sprite.flip_h = true
 		gunSprite.flip_h = true
+		gun.rotation_degrees = 180
+		gunSprite.flip_h = true
+		#gunSprite.flip_v = true
+		gunFlashSprite.flip_v = true
 		
 	elif dir.x > 0:
 		sprite.flip_h = false
 		gunSprite.flip_h = false
-	
-#	if dir_at_press.y == 0:
-#		aiming_dir.x = dir_at_press.x
-#	else:
-#		aiming_dir.y = dir_at_press.y
+		gun.rotation_degrees = 0
+		gunSprite.flip_v = false
+		gunFlashSprite.flip_v = false
+		
 
 # reposition bullet spawn based on dir held

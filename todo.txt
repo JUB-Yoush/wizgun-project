@@ -11,7 +11,7 @@ DONE
 
 DOING
 - find a good system to manage player animations (states of somekind???)
-- get the gun animations working, with firing and the gun turning to face the direction held
+- get the gun animations working, with muzzle flash and the gun turning to face the direction held
 
 - make the level
 - different level geometry 
@@ -29,6 +29,7 @@ P ANIMATIONS:
 
 
 feel based stuff:
+- squish the player a bit when they dash
 - players move past each other
 - have gun kb be slighly based on the x dir too
 - have an input buffer 
