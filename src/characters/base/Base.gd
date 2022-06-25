@@ -78,7 +78,7 @@ var time_scale = 0.03
 var duration = 0.7
 signal start_hitstop(time_scale, duration)
 
-# SIGNALS -------------------------------------
+# COLLISIONS -------------------------------------
 
 
 # states for state machine
@@ -103,6 +103,7 @@ func _ready():
 	#gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
 	#respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
+	area.connect("area_entered",self,"on_body_entered")
 	#area.connect("area_entered",self,"on_area_entered")
 	
 
@@ -322,15 +323,17 @@ func temp_hitstop_state(last_state):
 	yield(get_parent(),"hitstop_over")
 	_state = last_state
 
+# COLLISIONS--------------------------------------------
+func on_body_entered(body):
+	print('aww yeah this is happenin')
 
 # ANIMATION --------------------------------------------
 func turn_char(dir):
-	print(dir)
 	if dir.x < 0:
 		sprite.flip_h = true
 		gunSprite.flip_h = true
 		gun.rotation_degrees = 180
-		gunSprite.flip_h = true
+		#gunSprite.flip_h = true
 		#gunSprite.flip_v = true
 		gunFlashSprite.flip_v = true
 		
@@ -338,8 +341,13 @@ func turn_char(dir):
 		sprite.flip_h = false
 		gunSprite.flip_h = false
 		gun.rotation_degrees = 0
-		gunSprite.flip_v = false
-		gunFlashSprite.flip_v = false
+		#gunSprite.flip_v = false
+		#gunFlashSprite.flip_v = false
 		
-
+	if dir.y > 0 :
+		gun.rotation_degrees = 90
+	elif dir.y < 0:
+		gun.rotation_degrees = -90
+	elif dir.y == 0:
+		gun.rotation_degrees = 0
 # reposition bullet spawn based on dir held

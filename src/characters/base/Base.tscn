@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://assets/tilesheet.png" type="Texture" id=1]
 [ext_resource path="res://src/characters/base/Base.gd" type="Script" id=2]
+[ext_resource path="res://src/characters/base/areaStandingBox.tres" type="Shape2D" id=3]
 [ext_resource path="res://src/characters/base/StandingHitbox.tres" type="Shape2D" id=4]
 
 [sub_resource type="Animation" id=2]
@@ -163,7 +164,7 @@ collision_layer = 2
 collision_mask = 6
 
 [node name="AreaHitbox" type="CollisionShape2D" parent="Area2D"]
-shape = ExtResource( 4 )
+shape = ExtResource( 3 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Hitbox")
@@ -177,7 +178,7 @@ anims/slash_endlag = SubResource( 7 )
 anims/slide = SubResource( 5 )
 
 [node name="Gun" type="Node2D" parent="."]
-rotation = 3.14159
+visible = false
 
 [node name="GunSprite" type="Sprite" parent="Gun"]
 texture = ExtResource( 1 )

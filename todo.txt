@@ -12,6 +12,8 @@ DONE
 DOING
 - find a good system to manage player animations (states of somekind???)
 - get the gun animations working, with muzzle flash and the gun turning to face the direction held
+- dw about gun for now, can do that later
+- think about enviroment coliisions and enemy collisions, use two different hitboxes I guess, make bullets target the area instead of the body
 
 - make the level
 - different level geometry 

@@ -19,7 +19,8 @@ var parent_tag:String
 # Called when the node enters the scene tree for the first time.
 func _ready(): 
 	connect("start_hitstop",get_parent(),"make_hitstop")
-	connect("body_entered",self,"on_body_entered")
+	#connect("body_entered",self,"on_body_entered")
+	connect("area_entered",self,"on_area_entered")
 	lifespanTimer.connect("timeout",self,"on_lifespan_timeout")
 	lifespanTimer.start(lifetime)
 	visibilityNotif.connect("screen_exited",self,"exited_screen")
@@ -60,7 +61,8 @@ func on_lifespan_timeout():
 	queue_free()
 	
 
-func on_body_entered(body:PhysicsBody2D):
+func on_area_entered(area:Area2D):
+	var body = area.get_parent()
 	if body == null:
 		pass
 	else:
@@ -69,11 +71,7 @@ func on_body_entered(body:PhysicsBody2D):
 				
 		if body.player_tag != parent_tag:
 				body.on_player_defeat()
-				
-			
 	
-func on_area_entered(area:Area2D):
-	print(area.name)
 	
 func reflect(body:KinematicBody2D):
 	dir = Vector2.ZERO
