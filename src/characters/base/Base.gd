@@ -22,6 +22,7 @@ onready var gunSprite := $Gun/GunSprite
 onready var gunFlashSprite := $Gun/GunSprite/GunFlash
 onready var animPlayer := $AnimationPlayer
 onready var area := $Area2D
+onready var slashBox = $Slashbox
 
 
 # RESPAWNING ---------------------------------------	 
@@ -61,17 +62,22 @@ var gun_cooling := false
 export var slash_speed:Vector2 = Vector2(700,500)
 var velocity_at_press:Vector2 = Vector2.ZERO
 var slash_time:int = 0
-export var slash_active_frames:int = 6
+export var slash_active_frames:int = 5
 export var slash_active_time:float = (59/60)
 #onready var slashActiveTimer: = get_tree().create_timer(slash_active_time)
 var sat_timer_started = false
 var slashed_in_jump:bool = false
 
 # SLASH ENDLAG --------------------------------
-export var slash_recovery_frames:int = 15
+export var slash_recovery_frames:int = 20
 export var slash_recovery_time:float = 15/60
 onready var slashRecoveryTimer: = get_tree().create_timer(slash_recovery_time)
 var srt_timer_started = false
+
+# SLASH BOUCEBACK --------------------------------
+export var slash_bb_frames:int = 5
+export var slash_bb_speed:Vector2 = Vector2(700,500)
+
 
 # HITSTOP ----------------------------------------
 var time_scale = 0.03
@@ -90,6 +96,7 @@ enum States {
 	IN_AIR,
 	SLASH_ENDLAG,
 	RESPAWNING,
+	SLASH_BOUCEBACK,
 	HITSTOP	
 	}
 
@@ -103,7 +110,8 @@ func _ready():
 	#gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
 	#respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
-	area.connect("area_entered",self,"on_body_entered")
+	area.connect("area_entered",self,"on_area_entered")
+	slashBox.connect("area_entered",self,"on_area_entered")
 	#area.connect("area_entered",self,"on_area_entered")
 	
 
@@ -127,6 +135,8 @@ func _physics_process(delta):
 			state_respawning()
 		States.HITSTOP:
 			state_hitstop()
+		States.SLASH_BOUCEBACK:
+			state_slash_bouceback(delta,last_dir)
 		
 	
 	#print(_state)
@@ -165,6 +175,8 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	
 func state_slashing(delta,dir_at_press:Vector2):
 	#get cardinal dir
+	slashBox.monitoring = true
+	slashBox.monitorable = true
 	animPlayer.play("slash")
 	var slashing_dir:Vector2 = Vector2.ZERO
 	if dir_at_press.y == 0:
@@ -180,8 +192,11 @@ func state_slashing(delta,dir_at_press:Vector2):
 	slash_time += 1
 	if slash_time >= slash_active_frames:
 		slash_time = 0
+		slashBox.monitoring = false
+		slashBox.monitorable = false
 		_state = States.SLASH_ENDLAG
 	
+
 func state_slash_endlag():
 	animPlayer.play("slash_endlag")
 	slash_time += 1
@@ -249,6 +264,24 @@ func reset_state():
 
 func state_hitstop():
 	pass
+
+func state_slash_bouceback(delta,dir_at_press:Vector2):
+	animPlayer.play("slash_endlag")
+	var opposite_dir = dir_at_press
+	if dir_at_press.y == 0:
+		opposite_dir.x = dir_at_press.x
+	else:
+		opposite_dir.y = dir_at_press.y
+	opposite_dir = opposite_dir * -1
+	
+	velocity = opposite_dir * slash_bb_speed
+	velocity = move_and_slide(velocity,UP)
+	slash_time += 1
+	if slash_time >= slash_bb_frames:
+		slash_time == 0
+		_state = States.SLASH_ENDLAG
+	
+	
 	
 
 
@@ -324,8 +357,29 @@ func temp_hitstop_state(last_state):
 	_state = last_state
 
 # COLLISIONS--------------------------------------------
-func on_body_entered(body):
-	print('aww yeah this is happenin')
+func on_area_entered(area:Area2D):
+	var body = area.get_parent()
+	if body == null:
+		pass
+		
+	if body.is_in_group("player") and body.player_tag != player_tag:
+		
+		
+		if _state == States.SLASHING:
+			if body._state != States.SLASHING:
+				body.on_player_defeat()
+			if body._state == States.SLASHING:
+				slashBox.monitoring = false
+				slashBox.monitorable = false
+				slash_time = 0
+				body.slash_time = 0
+				body.slashBox.monitoring = false
+				body.slashBox.monitorable = false
+				_state = States.SLASH_BOUCEBACK 
+				body._state = States.SLASH_BOUCEBACK 
+				print('bouceback')
+				pass
+				
 
 # ANIMATION --------------------------------------------
 func turn_char(dir):

@@ -1,10 +1,9 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://src/characters/p1/Player1.tscn" type="PackedScene" id=1]
 [ext_resource path="res://assets/tilesheet.png" type="Texture" id=2]
 [ext_resource path="res://src/characters/p2/Player2.tscn" type="PackedScene" id=3]
 [ext_resource path="res://src/stage/Main.gd" type="Script" id=4]
-[ext_resource path="res://src/items/Ammo.tscn" type="PackedScene" id=5]
 
 [sub_resource type="ConvexPolygonShape2D" id=2]
 points = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
@@ -34,9 +33,6 @@ points = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 4 )
-
-[node name="Ammo" parent="." instance=ExtResource( 5 )]
-position = Vector2( 122, 157 )
 
 [node name="TileMap" type="TileMap" parent="." groups=["enviroment", "floor"]]
 tile_set = SubResource( 1 )

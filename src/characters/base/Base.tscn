@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://assets/tilesheet.png" type="Texture" id=1]
 [ext_resource path="res://src/characters/base/Base.gd" type="Script" id=2]
@@ -141,6 +141,9 @@ tracks/0/keys = {
 "values": [ 3 ]
 }
 
+[sub_resource type="RectangleShape2D" id=9]
+extents = Vector2( 12.5, 7.5 )
+
 [node name="Base" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
 collision_mask = 7
@@ -159,7 +162,7 @@ region_rect = Rect2( 0, 0, 144, 16 )
 [node name="Hitbox" type="CollisionShape2D" parent="."]
 shape = ExtResource( 4 )
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Area2D" type="Area2D" parent="." groups=["hitbox"]]
 collision_layer = 2
 collision_mask = 6
 
@@ -196,3 +199,13 @@ region_enabled = true
 region_rect = Rect2( 16, 16, 16, 16 )
 
 [node name="BulletSpawn" type="Position2D" parent="Gun"]
+
+[node name="Slashbox" type="Area2D" parent="." groups=["slashbox"]]
+collision_layer = 16
+collision_mask = 22
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Slashbox"]
+position = Vector2( 12.5, 0 )
+shape = SubResource( 9 )

@@ -4,7 +4,8 @@ var time_scale = 0.03
 var duration = 0.7
 
 var dir:Vector2 = Vector2.ZERO
-var lifetime = 5
+export var lifetime = 5
+export var reflected_lifetime = 0.2
 export var speed:float = 7
 export var reflected_speed = 5
 var velocity:Vector2
@@ -62,10 +63,20 @@ func on_lifespan_timeout():
 	
 
 func on_area_entered(area:Area2D):
+	if area.is_in_group("projectile"):
+		if area.reflected == false:
+			area.queue_free()
+		if reflected == false:
+			queue_free()
+			
+		
+		
 	var body = area.get_parent()
 	if body == null:
 		pass
-	else:
+	
+	
+	elif body.is_in_group("player"):
 		if body._state == body.States.SLASHING:
 				reflect(body)
 				
@@ -74,6 +85,7 @@ func on_area_entered(area:Area2D):
 	
 	
 func reflect(body:KinematicBody2D):
+	reflected = true
 	dir = Vector2.ZERO
 	set_modulate("#ffffff")
 	body.temp_hitstop_state(body._state)
@@ -86,4 +98,5 @@ func reflect(body:KinematicBody2D):
 		elif parent_tag ==  PARENTS[0]: parent_tag = PARENTS[1]
 	dir = body.last_dir
 	speed += reflected_speed
+	lifespanTimer.start(reflected_lifetime)
 	
