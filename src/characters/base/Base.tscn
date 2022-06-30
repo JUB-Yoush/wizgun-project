@@ -201,6 +201,7 @@ region_rect = Rect2( 16, 16, 16, 16 )
 [node name="BulletSpawn" type="Position2D" parent="Gun"]
 
 [node name="Slashbox" type="Area2D" parent="." groups=["slashbox"]]
+rotation = 4.71239
 collision_layer = 16
 collision_mask = 22
 monitoring = false

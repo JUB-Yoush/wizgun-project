@@ -174,15 +174,25 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	
 	
 func state_slashing(delta,dir_at_press:Vector2):
-	#get cardinal dir
-	slashBox.monitoring = true
-	slashBox.monitorable = true
-	animPlayer.play("slash")
 	var slashing_dir:Vector2 = Vector2.ZERO
 	if dir_at_press.y == 0:
 		slashing_dir.x = dir_at_press.x
 	else:
 		slashing_dir.y = dir_at_press.y
+	match slashing_dir:
+		Vector2(1,0):
+			slashBox.rotation_degrees = 0
+		Vector2(-1,0):
+			slashBox.rotation_degrees = 180
+		Vector2(0,-1):
+			slashBox.rotation_degrees = 270
+		Vector2(0,1):
+			slashBox.rotation_degrees = 90
+			
+	slashBox.monitoring = true
+	slashBox.monitorable = true
+	animPlayer.play("slash")
+	
 	velocity = slashing_dir * slash_speed
 	velocity = move_and_slide(velocity,UP)
 	
