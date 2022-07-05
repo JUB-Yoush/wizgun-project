@@ -45,7 +45,7 @@ position = Vector2( 386, 70 )
 ammo = 999
 
 [node name="Player2" parent="." groups=["player2"] instance=ExtResource( 3 )]
-position = Vector2( 314, 74 )
+position = Vector2( 160, 64 )
 ammo = 999
 
 [node name="RespawnPositions" type="Node" parent="."]

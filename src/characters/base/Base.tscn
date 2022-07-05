@@ -142,32 +142,13 @@ tracks/0/keys = {
 }
 
 [sub_resource type="RectangleShape2D" id=9]
-extents = Vector2( 12.5, 7.5 )
+extents = Vector2( 14.5, 7.5 )
 
 [node name="Base" type="KinematicBody2D" groups=["player"]]
 collision_layer = 2
 collision_mask = 7
 script = ExtResource( 2 )
 ammo = 3
-
-[node name="Sprite" type="Sprite" parent="."]
-texture = ExtResource( 1 )
-centered = false
-offset = Vector2( -8, -8 )
-hframes = 9
-frame = 6
-region_enabled = true
-region_rect = Rect2( 0, 0, 144, 16 )
-
-[node name="Hitbox" type="CollisionShape2D" parent="."]
-shape = ExtResource( 4 )
-
-[node name="Area2D" type="Area2D" parent="." groups=["hitbox"]]
-collision_layer = 2
-collision_mask = 6
-
-[node name="AreaHitbox" type="CollisionShape2D" parent="Area2D"]
-shape = ExtResource( 3 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Hitbox")
@@ -179,6 +160,37 @@ anims/run = SubResource( 1 )
 anims/slash = SubResource( 6 )
 anims/slash_endlag = SubResource( 7 )
 anims/slide = SubResource( 5 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+centered = false
+offset = Vector2( -8, -8 )
+hframes = 9
+frame = 6
+region_enabled = true
+region_rect = Rect2( 0, 0, 144, 16 )
+
+[node name="Hitbox" type="CollisionShape2D" parent="."]
+visible = false
+shape = ExtResource( 4 )
+
+[node name="BodyArea" type="Area2D" parent="." groups=["hitbox"]]
+collision_layer = 2
+collision_mask = 6
+
+[node name="AreaHitbox" type="CollisionShape2D" parent="BodyArea"]
+shape = ExtResource( 3 )
+
+[node name="SlashArea" type="Area2D" parent="." groups=["slashbox"]]
+rotation = -1.5708
+collision_layer = 16
+collision_mask = 22
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SlashArea"]
+position = Vector2( 14.5, 0 )
+shape = SubResource( 9 )
 
 [node name="Gun" type="Node2D" parent="."]
 visible = false
@@ -200,13 +212,10 @@ region_rect = Rect2( 16, 16, 16, 16 )
 
 [node name="BulletSpawn" type="Position2D" parent="Gun"]
 
-[node name="Slashbox" type="Area2D" parent="." groups=["slashbox"]]
-rotation = 4.71239
-collision_layer = 16
-collision_mask = 22
-monitoring = false
-monitorable = false
+[node name="WallRayR" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( 12, 0 )
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Slashbox"]
-position = Vector2( 12.5, 0 )
-shape = SubResource( 9 )
+[node name="WallRayL" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( -12, 0 )

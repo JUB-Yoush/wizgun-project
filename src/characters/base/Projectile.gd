@@ -7,7 +7,7 @@ var dir:Vector2 = Vector2.ZERO
 export var lifetime = 5
 export var reflected_lifetime = 0.2
 export var speed:float = 7
-export var reflected_speed = 5
+export var reflected_speed = 10
 var velocity:Vector2
 var reflected:bool = false
 onready var visibilityNotif = $VisibilityNotifier2D
@@ -63,6 +63,7 @@ func on_lifespan_timeout():
 	
 
 func on_area_entered(area:Area2D):
+	print(area.name)
 	if area.is_in_group("projectile"):
 		if area.reflected == false:
 			area.queue_free()
@@ -77,10 +78,11 @@ func on_area_entered(area:Area2D):
 	
 	
 	elif body.is_in_group("player"):
+		print(body._state)
 		if body._state == body.States.SLASHING:
 				reflect(body)
 				
-		if body.player_tag != parent_tag:
+		elif body.player_tag != parent_tag:
 				body.on_player_defeat()
 	
 	

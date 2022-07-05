@@ -21,8 +21,11 @@ onready var gun := $Gun
 onready var gunSprite := $Gun/GunSprite
 onready var gunFlashSprite := $Gun/GunSprite/GunFlash
 onready var animPlayer := $AnimationPlayer
-onready var area := $Area2D
-onready var slashBox = $Slashbox
+onready var bodyArea := $BodyArea
+onready var slashArea = $SlashArea
+
+onready var wallRayR = $WallRayR
+onready var wallRayL = $WallRayL
 
 
 # RESPAWNING ---------------------------------------	 
@@ -84,8 +87,13 @@ var time_scale = 0.03
 var duration = 0.7
 signal start_hitstop(time_scale, duration)
 
+#WALL JUMP ----------------------------------------------
+onready var wall_slide_speed:float = 12
+
 # COLLISIONS -------------------------------------
 
+# DEBUG -----------------------------------------
+var old_state 
 
 # states for state machine
 enum States {
@@ -98,6 +106,7 @@ enum States {
 	RESPAWNING,
 	SLASH_BOUCEBACK,
 	HITSTOP	
+	WALL_SLIDE
 	}
 
 
@@ -110,13 +119,15 @@ func _ready():
 	#gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
 	#respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
-	area.connect("area_entered",self,"on_area_entered")
-	slashBox.connect("area_entered",self,"on_area_entered")
+	bodyArea.connect("area_entered",self,"on_area_entered")
+	slashArea.connect("area_entered",self,"on_area_entered")
+
 	#area.connect("area_entered",self,"on_area_entered")
 	
 
 func _physics_process(delta):
-	#print(_state)
+#	if old_state != _state:
+#		print(str(player_tag) + "state:" +str(_state))
 	#Finite state machine
 	match _state:
 		States.ON_GROUND:
@@ -137,8 +148,10 @@ func _physics_process(delta):
 			state_hitstop()
 		States.SLASH_BOUCEBACK:
 			state_slash_bouceback(delta,last_dir)
+		States.WALL_SLIDE:
+			state_wall_slide(delta)
 		
-	
+	old_state = _state
 	#print(_state)
 			
 	
@@ -181,16 +194,19 @@ func state_slashing(delta,dir_at_press:Vector2):
 		slashing_dir.y = dir_at_press.y
 	match slashing_dir:
 		Vector2(1,0):
-			slashBox.rotation_degrees = 0
+			slashArea.rotation_degrees = 0
 		Vector2(-1,0):
-			slashBox.rotation_degrees = 180
+			slashArea.rotation_degrees = 180
 		Vector2(0,-1):
-			slashBox.rotation_degrees = 270
+			slashArea.rotation_degrees = 270
 		Vector2(0,1):
-			slashBox.rotation_degrees = 90
+			slashArea.rotation_degrees = 90
 			
-	slashBox.monitoring = true
-	slashBox.monitorable = true
+	slashArea.set_deferred("monitoring",true)
+	slashArea.set_deferred("monitorable",true)
+	bodyArea.set_deferred("monitoring",false)
+	bodyArea.set_deferred("monitorable",false)
+	
 	animPlayer.play("slash")
 	
 	velocity = slashing_dir * slash_speed
@@ -202,8 +218,10 @@ func state_slashing(delta,dir_at_press:Vector2):
 	slash_time += 1
 	if slash_time >= slash_active_frames:
 		slash_time = 0
-		slashBox.monitoring = false
-		slashBox.monitorable = false
+		slashArea.set_deferred("monitoring",false)
+		slashArea.set_deferred("monitorable",false)
+		bodyArea.set_deferred("monitoring",true)
+		bodyArea.set_deferred("monitorable",true)
 		_state = States.SLASH_ENDLAG
 	
 
@@ -258,12 +276,14 @@ func state_in_air(delta):
 		animPlayer.play("air_rise")
 	elif velocity.y > 0:
 		animPlayer.play("air_fall")
+	if next_to_wall():
+		_state = States.WALL_SLIDE
 
 func state_respawning():
 	#set_visible(true)
 	animPlayer.play("death")
 	hitbox.disabled = true
-	area.monitoring = false
+	bodyArea.monitoring = false
 
 
 func reset_state():
@@ -291,6 +311,10 @@ func state_slash_bouceback(delta,dir_at_press:Vector2):
 		slash_time == 0
 		_state = States.SLASH_ENDLAG
 	
+	
+func state_wall_slide(delta):
+	velocity.y = min(velocity.y + gravity,wall_slide_speed)
+	velocity = move_and_slide(velocity,UP)
 	
 	
 
@@ -355,7 +379,7 @@ func on_player_defeat():
 	position = respawnPosition.position
 	set_visible(true)
 	hitbox.disabled = false
-	area.monitoring = true
+	bodyArea.monitoring = true
 	reset_state()
 	pass
 #---------------------------------------------------------------------------------
@@ -379,17 +403,28 @@ func on_area_entered(area:Area2D):
 			if body._state != States.SLASHING:
 				body.on_player_defeat()
 			if body._state == States.SLASHING:
-				slashBox.monitoring = false
-				slashBox.monitorable = false
+				slashArea.set_deferred("monitoring",false)
+				slashArea.set_deferred("monitorable",false)
 				slash_time = 0
 				body.slash_time = 0
-				body.slashBox.monitoring = false
-				body.slashBox.monitorable = false
+				body.slashArea.set_deferred("monitoring",false)
+				body.slashArea.set_deferred("monitorable",false)
 				_state = States.SLASH_BOUCEBACK 
 				body._state = States.SLASH_BOUCEBACK 
 				print('bouceback')
 				pass
 				
+func next_to_wall():
+	return next_to_right_wall() or next_to_left_wall()
+
+func next_to_right_wall():
+	return wallRayR.is_colliding()
+
+func next_to_left_wall():
+	return wallRayL.is_colliding()
+	
+		
+	
 
 # ANIMATION --------------------------------------------
 func turn_char(dir):
