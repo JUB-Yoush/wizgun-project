@@ -214,8 +214,8 @@ region_rect = Rect2( 16, 16, 16, 16 )
 
 [node name="WallRayR" type="RayCast2D" parent="."]
 enabled = true
-cast_to = Vector2( 12, 0 )
+cast_to = Vector2( 9, 0 )
 
 [node name="WallRayL" type="RayCast2D" parent="."]
 enabled = true
-cast_to = Vector2( -12, 0 )
+cast_to = Vector2( -9, 0 )

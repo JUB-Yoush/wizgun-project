@@ -41,7 +41,7 @@ export (float,0,1.0) var friction = 0.2
 export (float,0,1.0) var air_friction = 0.02
 export (float,0,1.0) var acceleration = 0.2
 export var gravity:float = 25
-const MAX_GRAVITY = 1000
+const MAX_GRAVITY = 500
 const UP = Vector2.UP
 
 # SLIDING --------------------------------
@@ -70,6 +70,7 @@ export var slash_active_time:float = (59/60)
 #onready var slashActiveTimer: = get_tree().create_timer(slash_active_time)
 var sat_timer_started = false
 var slashed_in_jump:bool = false
+var slash_succeeded:bool = false
 
 # SLASH ENDLAG --------------------------------
 export var slash_recovery_frames:int = 20
@@ -88,7 +89,10 @@ var duration = 0.7
 signal start_hitstop(time_scale, duration)
 
 #WALL JUMP ----------------------------------------------
-onready var wall_slide_speed:float = 12
+onready var wall_slide_speed:float = 15
+onready var wall_jump_str:Vector2 = Vector2(-400,300)
+var wall_dir:Vector2 = Vector2.ZERO
+onready var MAX_WALL_SLIDE_SPEED = 40
 
 # COLLISIONS -------------------------------------
 
@@ -149,7 +153,7 @@ func _physics_process(delta):
 		States.SLASH_BOUCEBACK:
 			state_slash_bouceback(delta,last_dir)
 		States.WALL_SLIDE:
-			state_wall_slide(delta)
+			state_wall_slide(delta,wall_dir)
 		
 	old_state = _state
 	#print(_state)
@@ -222,7 +226,11 @@ func state_slashing(delta,dir_at_press:Vector2):
 		slashArea.set_deferred("monitorable",false)
 		bodyArea.set_deferred("monitoring",true)
 		bodyArea.set_deferred("monitorable",true)
-		_state = States.SLASH_ENDLAG
+		if slash_succeeded == true:
+			slash_succeeded = false
+			reset_state()
+		else:
+			_state = States.SLASH_ENDLAG
 	
 
 func state_slash_endlag():
@@ -264,6 +272,7 @@ func state_shooting(delta:float,dir_at_press:Vector2):
 
 
 func state_in_air(delta):
+	print(dir)
 	update_dir()
 	move(delta)
 	shoot()
@@ -276,8 +285,15 @@ func state_in_air(delta):
 		animPlayer.play("air_rise")
 	elif velocity.y > 0:
 		animPlayer.play("air_fall")
+		
 	if next_to_wall():
-		_state = States.WALL_SLIDE
+		if next_to_left_wall() and dir.x == -1 and not next_to_right_wall():
+			wall_dir = Vector2.LEFT
+			_state = States.WALL_SLIDE
+			
+		if next_to_right_wall() and dir.x == 1 and not next_to_left_wall():
+			wall_dir = Vector2.RIGHT
+			_state = States.WALL_SLIDE
 
 func state_respawning():
 	#set_visible(true)
@@ -312,9 +328,27 @@ func state_slash_bouceback(delta,dir_at_press:Vector2):
 		_state = States.SLASH_ENDLAG
 	
 	
-func state_wall_slide(delta):
-	velocity.y = min(velocity.y + gravity,wall_slide_speed)
-	velocity = move_and_slide(velocity,UP)
+func state_wall_slide(delta:float,wall_dir:Vector2):
+	update_dir()
+	slash()
+	var is_jumping:bool = Input.is_action_just_pressed(input_jump) and dir.y <= 0
+	if is_jumping:
+		print("jump_inputted")
+		velocity += wall_jump_str
+		velocity.y = -velocity.y
+		velocity.x = velocity.x * wall_dir.x
+		_state = States.IN_AIR
+		
+	
+	if dir.x == wall_dir.x:
+		velocity.y = min(velocity.y + wall_slide_speed,MAX_WALL_SLIDE_SPEED)
+		velocity = move_and_slide(velocity,UP)
+	else:
+		#velocity.y += wall_slide_speed 
+		_state = States.IN_AIR
+		
+	
+	
 	
 	
 
@@ -402,6 +436,9 @@ func on_area_entered(area:Area2D):
 		if _state == States.SLASHING:
 			if body._state != States.SLASHING:
 				body.on_player_defeat()
+				temp_hitstop_state(_state)
+				slash_succeeded = true
+				
 			if body._state == States.SLASHING:
 				slashArea.set_deferred("monitoring",false)
 				slashArea.set_deferred("monitorable",false)
