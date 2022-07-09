@@ -9,5 +9,5 @@ script = ExtResource( 2 )
 [node name="Sprite" parent="." index="1"]
 modulate = Color( 0.0823529, 0.65098, 0.956863, 1 )
 
-[node name="Hitbox" parent="." index="2"]
-visible = true
+[node name="GunSprite" parent="Gun" index="0"]
+self_modulate = Color( 0.466667, 0.215686, 0.67451, 1 )

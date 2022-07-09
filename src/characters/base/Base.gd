@@ -22,10 +22,11 @@ onready var gunSprite := $Gun/GunSprite
 onready var gunFlashSprite := $Gun/GunSprite/GunFlash
 onready var animPlayer := $AnimationPlayer
 onready var bodyArea := $BodyArea
+onready var bodyAreaHitbox := $BodyArea/AreaHitbox
 onready var slashArea = $SlashArea
 
-onready var wallRayR = $WallRayR
-onready var wallRayL = $WallRayL
+onready var wallRayR:RayCast2D = $WallRayR
+onready var wallRayL:RayCast2D = $WallRayL
 
 
 # RESPAWNING ---------------------------------------	 
@@ -34,13 +35,13 @@ var respawn_time:float = 2
 
 # MOVEMENT ----------------------------------------
 
-export var speed:float = 200.0
+export var speed:float = 125.0
 export var max_speed:Vector2 = Vector2(1500,1500)
-export var jump_str:float = 425.0
-export (float,0,1.0) var friction = 0.2
-export (float,0,1.0) var air_friction = 0.02
+export var jump_str:float = 380.0
+export (float,0,1.0) var ground_friction = 0.2
+export (float,0,1.0) var air_friction = 0.1
 export (float,0,1.0) var acceleration = 0.2
-export var gravity:float = 25
+export var gravity:float = 23
 const MAX_GRAVITY = 500
 const UP = Vector2.UP
 
@@ -54,7 +55,7 @@ var standingHitbox := load("res://src/characters/base/StandingHitbox.tres")
 
 #SHOOTING ------------------------------
 export var Projectile:PackedScene = preload("res://src/characters/base/Projectile.tscn")
-export var gun_recoil:Vector2 = Vector2(400,400)
+export var gun_recoil:Vector2 = Vector2(300,400)
 #onready var gunCooldown = $GunCooldown
 export var ammo = 99
 var has_gun := true
@@ -124,12 +125,14 @@ func _ready():
 	#respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
 	bodyArea.connect("area_entered",self,"on_area_entered")
-	slashArea.connect("area_entered",self,"on_area_entered")
+	#bodyArea.connect("body_entered",self,"on_body_entered")
+	slashArea.connect("area_entered",self,"on_slashArea_entered")
 
 	#area.connect("area_entered",self,"on_area_entered")
 	
 
 func _physics_process(delta):
+	#print(velocity)
 #	if old_state != _state:
 #		print(str(player_tag) + "state:" +str(_state))
 	#Finite state machine
@@ -165,7 +168,7 @@ func state_on_ground(delta):
 	if is_on_floor() == false: _state = States.IN_AIR
 	update_dir()
 	jump()
-	move(delta)
+	move(delta,ground_friction)
 	slide()
 	shoot()
 	slash()
@@ -173,9 +176,11 @@ func state_on_ground(delta):
 	
 	
 func state_sliding(delta:float, passed_in_dir:Vector2):
-	if is_on_floor() == false: _state = States.IN_AIR
+	
 	animPlayer.play("slide")
 	#set to slide then set back to on ground when min speed reached
+	bodyAreaHitbox.shape = slidingHitbox
+	bodyAreaHitbox.position.y = 6
 	hitbox.shape = slidingHitbox
 	hitbox.position.y = 6
 	velocity.x = slide_velocity.x 
@@ -183,7 +188,17 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
 	velocity.x = velocity.x * passed_in_dir.x
 	velocity = move_and_slide(velocity,UP)
+	
+	if is_on_floor() == false: 
+		bodyAreaHitbox.shape = standingHitbox
+		bodyAreaHitbox.position.y = 0
+		hitbox.shape = standingHitbox
+		hitbox.position.y = 0
+		_state = States.IN_AIR
+		
 	if slide_velocity.x <= slide_stop_speed:
+		bodyAreaHitbox.shape = standingHitbox
+		bodyAreaHitbox.position.y = 0
 		hitbox.shape = standingHitbox
 		hitbox.position.y = 0
 		_state = States.ON_GROUND
@@ -205,27 +220,20 @@ func state_slashing(delta,dir_at_press:Vector2):
 			slashArea.rotation_degrees = 270
 		Vector2(0,1):
 			slashArea.rotation_degrees = 90
-			
-	slashArea.set_deferred("monitoring",true)
-	slashArea.set_deferred("monitorable",true)
-	bodyArea.set_deferred("monitoring",false)
-	bodyArea.set_deferred("monitorable",false)
+	
+	toggle_area(slashArea,true)
+	toggle_area(bodyArea,false)
 	
 	animPlayer.play("slash")
 	
 	velocity = slashing_dir * slash_speed
 	velocity = move_and_slide(velocity,UP)
 	
-	# var slashActiveTimer: = get_tree().create_timer(slash_active_time)
-	#yield(get_tree().create_timer(slash_active_time), "timeout")
-	
 	slash_time += 1
 	if slash_time >= slash_active_frames:
 		slash_time = 0
-		slashArea.set_deferred("monitoring",false)
-		slashArea.set_deferred("monitorable",false)
-		bodyArea.set_deferred("monitoring",true)
-		bodyArea.set_deferred("monitorable",true)
+		toggle_area(slashArea,false)
+		toggle_area(bodyArea,true)
 		if slash_succeeded == true:
 			slash_succeeded = false
 			reset_state()
@@ -234,9 +242,11 @@ func state_slashing(delta,dir_at_press:Vector2):
 	
 
 func state_slash_endlag():
+	print(slash_time)
 	animPlayer.play("slash_endlag")
 	slash_time += 1
 	if slash_time >= slash_recovery_frames:
+		print("out")
 		slash_time = 0
 		velocity = Vector2.ZERO
 		reset_state()
@@ -267,14 +277,17 @@ func state_shooting(delta:float,dir_at_press:Vector2):
 			
 	get_parent().add_child(proj)
 	
+	animPlayer.play("gun_flash")
+	
+	
+	
 	reset_state()
 
 
 
 func state_in_air(delta):
-	print(dir)
 	update_dir()
-	move(delta)
+	move(delta,air_friction)
 	shoot()
 	slash()
 	
@@ -299,7 +312,8 @@ func state_respawning():
 	#set_visible(true)
 	animPlayer.play("death")
 	hitbox.disabled = true
-	bodyArea.monitoring = false
+	toggle_area(bodyArea,false)
+	
 
 
 func reset_state():
@@ -313,7 +327,7 @@ func state_hitstop():
 
 func state_slash_bouceback(delta,dir_at_press:Vector2):
 	animPlayer.play("slash_endlag")
-	var opposite_dir = dir_at_press
+	var opposite_dir:Vector2 = Vector2.ZERO
 	if dir_at_press.y == 0:
 		opposite_dir.x = dir_at_press.x
 	else:
@@ -324,7 +338,9 @@ func state_slash_bouceback(delta,dir_at_press:Vector2):
 	velocity = move_and_slide(velocity,UP)
 	slash_time += 1
 	if slash_time >= slash_bb_frames:
-		slash_time == 0
+		slash_time = 0
+		toggle_area(slashArea,false)
+		toggle_area(bodyArea,true)
 		_state = States.SLASH_ENDLAG
 	
 	
@@ -333,14 +349,13 @@ func state_wall_slide(delta:float,wall_dir:Vector2):
 	slash()
 	var is_jumping:bool = Input.is_action_just_pressed(input_jump) and dir.y <= 0
 	if is_jumping:
-		print("jump_inputted")
 		velocity += wall_jump_str
 		velocity.y = -velocity.y
 		velocity.x = velocity.x * wall_dir.x
 		_state = States.IN_AIR
 		
 	
-	if dir.x == wall_dir.x:
+	if dir.x == wall_dir.x and !is_on_floor() and next_to_wall():
 		velocity.y = min(velocity.y + wall_slide_speed,MAX_WALL_SLIDE_SPEED)
 		velocity = move_and_slide(velocity,UP)
 	else:
@@ -364,7 +379,7 @@ func update_dir():
 	
 	turn_char(dir)
 
-func move(delta):
+func move(delta,friction):
 	if dir.x != 0:
 		velocity.x = lerp(velocity.x, dir.x * speed, acceleration)
 	else:
@@ -372,6 +387,7 @@ func move(delta):
 		
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
 	velocity = move_and_slide(velocity,UP)
+	
 	if velocity.x != 0:
 		animPlayer.play("run")
 	else:
@@ -412,7 +428,9 @@ func on_player_defeat():
 	var respawnPosition = get_parent().get_respawn_position()
 	position = respawnPosition.position
 	set_visible(true)
+	
 	hitbox.disabled = false
+	toggle_area(bodyArea,true)
 	bodyArea.monitoring = true
 	reset_state()
 	pass
@@ -425,65 +443,83 @@ func temp_hitstop_state(last_state):
 	_state = last_state
 
 # COLLISIONS--------------------------------------------
+func on_body_entered(body:PhysicsBody2D):
+	print('body enter')
+	if body.is_in_group("platform") and is_on_ceiling():
+		print('hit head')
+
+
 func on_area_entered(area:Area2D):
 	var body = area.get_parent()
+	
 	if body == null:
 		pass
 		
 	if body.is_in_group("player") and body.player_tag != player_tag:
+		pass
 		
 		
+func on_slashArea_entered(area:Area2D):
+	var body = area.get_parent()
+	if body == null:
+		pass
+	
+	if body.is_in_group("player") and body.player_tag != player_tag:
+	
 		if _state == States.SLASHING:
-			if body._state != States.SLASHING:
-				body.on_player_defeat()
-				temp_hitstop_state(_state)
-				slash_succeeded = true
-				
-			if body._state == States.SLASHING:
-				slashArea.set_deferred("monitoring",false)
-				slashArea.set_deferred("monitorable",false)
-				slash_time = 0
-				body.slash_time = 0
-				body.slashArea.set_deferred("monitoring",false)
-				body.slashArea.set_deferred("monitorable",false)
-				_state = States.SLASH_BOUCEBACK 
-				body._state = States.SLASH_BOUCEBACK 
-				print('bouceback')
-				pass
+				if body._state != States.SLASHING:
+					body.on_player_defeat()
+					temp_hitstop_state(_state)
+					slash_succeeded = true
+					
+				if body._state == States.SLASHING:
+					toggle_area(slashArea,false)
+					slash_time = 0
+					body.slash_time = 0
+					body.toggle_area(slashArea,false)
+					_state = States.SLASH_BOUCEBACK 
+					body._state = States.SLASH_BOUCEBACK 
 				
 func next_to_wall():
 	return next_to_right_wall() or next_to_left_wall()
 
 func next_to_right_wall():
-	return wallRayR.is_colliding()
+	if wallRayR.is_colliding():
+		var collider: = wallRayR.get_collider()
+		if collider.is_in_group("floor"):
+			return true
 
 func next_to_left_wall():
-	return wallRayL.is_colliding()
+	if wallRayL.is_colliding():
+		var collider: = wallRayL.get_collider()
+		if collider.is_in_group("floor"):
+			return true
 	
 		
 	
 
 # ANIMATION --------------------------------------------
 func turn_char(dir):
-	if dir.x < 0:
-		sprite.flip_h = true
-		gunSprite.flip_h = true
-		gun.rotation_degrees = 180
-		#gunSprite.flip_h = true
-		#gunSprite.flip_v = true
-		gunFlashSprite.flip_v = true
-		
-	elif dir.x > 0:
+	if dir.x == 1:
 		sprite.flip_h = false
-		gunSprite.flip_h = false
 		gun.rotation_degrees = 0
-		#gunSprite.flip_v = false
-		#gunFlashSprite.flip_v = false
-		
-	if dir.y > 0 :
+		gunSprite.flip_v = false
+	
+	if dir.x == -1:
+		sprite.flip_h = true
+		gun.rotation_degrees = 180
+		gunSprite.flip_v = true
+	
+	if dir.y == 1:
 		gun.rotation_degrees = 90
-	elif dir.y < 0:
-		gun.rotation_degrees = -90
-	elif dir.y == 0:
-		gun.rotation_degrees = 0
+		
+	if dir.y == -1:
+		gun.rotation_degrees = 270
+		
 # reposition bullet spawn based on dir held
+
+# HELPER FUNCTIONS ----------------------------------------------
+func toggle_area(area:Area2D,state:bool):
+	area.set_deferred("monitoring",state)
+	area.set_deferred("monitorable",state)
+	pass
