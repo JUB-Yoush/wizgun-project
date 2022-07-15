@@ -91,6 +91,7 @@ func on_area_entered(area:Area2D):
 				call_deferred("queue_free")
 	
 func on_body_entered(body:PhysicsBody2D):
+	
 	if reflected:
 		explode()
 	else:

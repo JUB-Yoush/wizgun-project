@@ -45,6 +45,8 @@ export var gravity:float = 23
 const MAX_GRAVITY = 500
 const UP = Vector2.UP
 
+# falling thru platforms
+
 # SLIDING --------------------------------
 export var slide_speed:float = 350
 var slide_velocity:Vector2 = Vector2.ZERO
@@ -91,9 +93,11 @@ signal start_hitstop(time_scale, duration)
 
 #WALL JUMP ----------------------------------------------
 onready var wall_slide_speed:float = 15
-onready var wall_jump_str:Vector2 = Vector2(-400,300)
+onready var wall_jump_str:Vector2 = Vector2(-400,250)
 var wall_dir:Vector2 = Vector2.ZERO
 onready var MAX_WALL_SLIDE_SPEED = 40
+var jumped_on_this_wall:bool = false
+var last_wall_dir:Vector2
 
 # COLLISIONS -------------------------------------
 
@@ -165,6 +169,7 @@ func _physics_process(delta):
 # STATES ---------------------------------------------------------
 func state_on_ground(delta):
 	slashed_in_jump = false
+	jumped_on_this_wall = false
 	if is_on_floor() == false: _state = States.IN_AIR
 	update_dir()
 	jump()
@@ -277,7 +282,7 @@ func state_shooting(delta:float,dir_at_press:Vector2):
 			
 	get_parent().add_child(proj)
 	
-	animPlayer.play("gun_flash")
+	#animPlayer.play("gun_flash")
 	
 	
 	
@@ -302,10 +307,15 @@ func state_in_air(delta):
 	if next_to_wall():
 		if next_to_left_wall() and dir.x == -1 and not next_to_right_wall():
 			wall_dir = Vector2.LEFT
+			# if the last wall you touched was not the same direction
+			if last_wall_dir != wall_dir:
+				jumped_on_this_wall = false
 			_state = States.WALL_SLIDE
 			
 		if next_to_right_wall() and dir.x == 1 and not next_to_left_wall():
 			wall_dir = Vector2.RIGHT
+			if last_wall_dir != wall_dir:
+				jumped_on_this_wall = false
 			_state = States.WALL_SLIDE
 
 func state_respawning():
@@ -347,8 +357,10 @@ func state_slash_bouceback(delta,dir_at_press:Vector2):
 func state_wall_slide(delta:float,wall_dir:Vector2):
 	update_dir()
 	slash()
+	last_wall_dir = wall_dir
 	var is_jumping:bool = Input.is_action_just_pressed(input_jump) and dir.y <= 0
-	if is_jumping:
+	if is_jumping and not jumped_on_this_wall:
+		jumped_on_this_wall = true
 		velocity += wall_jump_str
 		velocity.y = -velocity.y
 		velocity.x = velocity.x * wall_dir.x
