@@ -1,5 +1,5 @@
-player interactions:
-DONE
+player** interactions:
+*DONE**
 - have two players on the screen 
 - make sure they're seperate instances
 - respawers

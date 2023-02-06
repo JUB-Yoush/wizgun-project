@@ -67,22 +67,17 @@ var gun_cooling := false
 #SLASHING -----------------------------
 export var slash_speed:Vector2 = Vector2(700,500)
 var velocity_at_press:Vector2 = Vector2.ZERO
-var slash_time:int = 0
-export var slash_active_frames:int = 5
-export var slash_active_time:float = (59/60)
-#onready var slashActiveTimer: = get_tree().create_timer(slash_active_time)
-var sat_timer_started = false
+var slash_time:float  = 0
+export var slash_active_time:float = 1.0
+var slash_frame_time := 10.0
 var slashed_in_jump:bool = false
 var slash_succeeded:bool = false
 
 # SLASH ENDLAG --------------------------------
-export var slash_recovery_frames:int = 20
-export var slash_recovery_time:float = 15/60
-onready var slashRecoveryTimer: = get_tree().create_timer(slash_recovery_time)
-var srt_timer_started = false
+export var slash_recovery_time:float = 5.0 
 
 # SLASH BOUCEBACK --------------------------------
-export var slash_bb_frames:int = 5
+export var slash_bb_frames:float = 5
 export var slash_bb_speed:Vector2 = Vector2(700,500)
 
 
@@ -152,7 +147,7 @@ func _physics_process(delta):
 		States.SLASHING:
 			state_slashing(delta,last_dir)
 		States.SLASH_ENDLAG:
-			state_slash_endlag()
+			state_slash_endlag(delta)
 		States.RESPAWNING:
 			state_respawning()
 		States.HITSTOP:
@@ -212,6 +207,7 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	
 func state_slashing(delta,dir_at_press:Vector2):
 	var slashing_dir:Vector2 = Vector2.ZERO
+	# aim slash in cardial direction
 	if dir_at_press.y == 0:
 		slashing_dir.x = dir_at_press.x
 	else:
@@ -234,8 +230,10 @@ func state_slashing(delta,dir_at_press:Vector2):
 	velocity = slashing_dir * slash_speed
 	velocity = move_and_slide(velocity,UP)
 	
-	slash_time += 1
-	if slash_time >= slash_active_frames:
+	slash_time += delta * slash_frame_time
+	#prints(delta,slash_time)
+	#print(slash_time)
+	if slash_time >= slash_active_time:
 		slash_time = 0
 		toggle_area(slashArea,false)
 		toggle_area(bodyArea,true)
@@ -246,12 +244,10 @@ func state_slashing(delta,dir_at_press:Vector2):
 			_state = States.SLASH_ENDLAG
 	
 
-func state_slash_endlag():
-	print(slash_time)
+func state_slash_endlag(delta:float):
 	animPlayer.play("slash_endlag")
-	slash_time += 1
-	if slash_time >= slash_recovery_frames:
-		print("out")
+	slash_time += delta * slash_frame_time
+	if slash_time >= slash_recovery_time:
 		slash_time = 0
 		velocity = Vector2.ZERO
 		reset_state()
