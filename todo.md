@@ -15,24 +15,38 @@ player** interactions:
 	- if it touches another slash box, do a defect thing
 
 DOING
-- find a good system to manage player animations (states of somekind???)
-- get the gun animations working, with muzzle flash and the gun turning to face the direction held
-- dw about gun for now, can do that later
 - fix the weird reflect state bug? do a printout and investigate
+- ^ ion know what dat is dawg :flushed:
 
 
 - make the level
 - different level geometry 
 - get character area stuff setup
 
+GAMEPLAY LOOP STUFF:
+- set up targets:
+	- you shoot or dash into them to collect them
+	- they get added to your target count
+- baskets
+	- used to cash in your target count
+	- stay within the target area for long enough for it to count as a cash in 
+	- 5 cash ins wins the round
 
-P ANIMATIONS:
-- flip based on direction
-- no idle for now
-- run
-- slide
-- jump
--death
+
+
+Post MVP:
+- find a good system to manage player animations (states of somekind???)
+- re-balance the shooting mechaincs (can only be deflected twice)
+- make it so that you can shoot through one-way platforms?
+- get the gun animations working, with muzzle flash and the gun turning to face the direction held
+
+	P ANIMATIONS:
+	- flip based on direction
+	- no idle for now
+	- run
+	- slide
+	- jump
+	-death
 
 
 
