@@ -94,6 +94,11 @@ onready var MAX_WALL_SLIDE_SPEED = 40
 var jumped_on_this_wall:bool = false
 var last_wall_dir:Vector2
 
+# GAMEPLAY LOOP STUFF -----------------------
+var targets_scored := 0
+var targets_held := 0
+
+
 # COLLISIONS -------------------------------------
 
 # DEBUG -----------------------------------------
@@ -469,9 +474,15 @@ func on_area_entered(area:Area2D):
 		
 func on_slashArea_entered(area:Area2D):
 	var body = area.get_parent()
+	if body.is_in_group("targets"):
+		if area.is_in_group("target"):
+			targets_held += 1
+			slash_succeeded = true
+			area.queue_free()
+	
 	if body == null:
 		pass
-	
+
 	if body.is_in_group("player") and body.player_tag != player_tag:
 	
 		if _state == States.SLASHING:
