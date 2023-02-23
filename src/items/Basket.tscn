@@ -27,7 +27,7 @@ shape = SubResource( 1 )
 [node name="Timer" type="Timer" parent="."]
 
 [node name="Line2D" type="Line2D" parent="."]
-position = Vector2( 157, 37 )
+position = Vector2( 199, 39 )
 width = 1.0
 width_curve = SubResource( 2 )
 default_color = Color( 1, 1, 1, 1 )

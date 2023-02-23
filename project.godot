@@ -117,8 +117,6 @@ p2_sword={
 2d_physics/layer_3="projectiles"
 2d_physics/layer_4="items"
 2d_physics/layer_5="slash"
-2d_physics/layer_6="platforms"
-2d_physics/layer_7="targets"
 
 [physics]
 
