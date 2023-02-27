@@ -125,14 +125,10 @@ var velocity = Vector2.ZERO
 var _state = States.ON_GROUND
 
 func _ready():
-	#gunCooldown.connect("timeout",self,"on_gunCooldown_timeout")
-	#respawnTimer.connect("timeout",self,"on_respawnTimer_timeout")
 	connect("start_hitstop",get_parent(),"make_hitstop")
 	bodyArea.connect("area_entered",self,"on_area_entered")
-	#bodyArea.connect("body_entered",self,"on_body_entered")
 	slashArea.connect("area_entered",self,"on_slashArea_entered")
 
-	#area.connect("area_entered",self,"on_area_entered")
 	
 
 func _physics_process(delta):
@@ -163,14 +159,40 @@ func _physics_process(delta):
 			state_wall_slide(delta,wall_dir)
 		
 	old_state = _state
-	#print(_state)
 			
 	
+func change_state(new_state:int):
+	match _state:
+		States.ON_GROUND:
+			pass
+		States.SLIDING:
+			bodyAreaHitbox.shape = standingHitbox
+			bodyAreaHitbox.position.y = 0
+			hitbox.shape = standingHitbox
+			hitbox.position.y = 0
+		States.IN_AIR:
+			pass
+		States.SHOOTING:
+			pass
+		States.SLASHING:
+			pass
+		States.SLASH_ENDLAG:
+			pass
+		States.RESPAWNING:
+			pass
+		States.HITSTOP:
+			pass
+		States.SLASH_BOUCEBACK:
+			pass
+		States.WALL_SLIDE:
+			pass
+	_state = new_state
+
 # STATES ---------------------------------------------------------
 func state_on_ground(delta):
 	slashed_in_jump = false
 	jumped_on_this_wall = false
-	if is_on_floor() == false: _state = States.IN_AIR
+	if is_on_floor() == false: change_state(States.IN_AIR)
 	update_dir()
 	jump()
 	move(delta,ground_friction)
@@ -199,14 +221,14 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 		bodyAreaHitbox.position.y = 0
 		hitbox.shape = standingHitbox
 		hitbox.position.y = 0
-		_state = States.IN_AIR
+		change_state(States.IN_AIR)
 		
 	if slide_velocity.x <= slide_stop_speed:
 		bodyAreaHitbox.shape = standingHitbox
 		bodyAreaHitbox.position.y = 0
 		hitbox.shape = standingHitbox
 		hitbox.position.y = 0
-		_state = States.ON_GROUND
+		change_state(States.ON_GROUND)
 	
 	
 	
@@ -236,8 +258,6 @@ func state_slashing(delta,dir_at_press:Vector2):
 	velocity = move_and_slide(velocity,UP)
 	
 	slash_time += delta * slash_frame_time
-	#prints(delta,slash_time)
-	#print(slash_time)
 	if slash_time >= slash_active_time:
 		slash_time = 0
 		toggle_area(slashArea,false)
@@ -246,7 +266,7 @@ func state_slashing(delta,dir_at_press:Vector2):
 			slash_succeeded = false
 			reset_state()
 		else:
-			_state = States.SLASH_ENDLAG
+			change_state(States.SLASH_ENDLAG)
 	
 
 func state_slash_endlag(delta:float):
@@ -298,7 +318,7 @@ func state_in_air(delta):
 	slash()
 	
 	if is_on_floor():
-		_state = States.ON_GROUND
+		change_state(States.ON_GROUND)
 		
 	if velocity.y < 0:
 		animPlayer.play("air_rise")
@@ -311,16 +331,17 @@ func state_in_air(delta):
 			# if the last wall you touched was not the same direction
 			if last_wall_dir != wall_dir:
 				jumped_on_this_wall = false
-			_state = States.WALL_SLIDE
+			change_state(States.WALL_SLIDE)
 			
 		if next_to_right_wall() and dir.x == 1 and not next_to_left_wall():
 			wall_dir = Vector2.RIGHT
 			if last_wall_dir != wall_dir:
 				jumped_on_this_wall = false
-			_state = States.WALL_SLIDE
+			change_state(States.WALL_SLIDE)
 
 func state_respawning():
 	#set_visible(true)
+	velocity = Vector2.ZERO
 	animPlayer.play("death")
 	hitbox.disabled = true
 	toggle_area(bodyArea,false)
@@ -329,9 +350,9 @@ func state_respawning():
 
 func reset_state():
 	if is_on_floor():
-		_state = States.ON_GROUND
+		change_state(States.ON_GROUND)
 	elif !is_on_floor():
-		_state = States.IN_AIR
+		change_state(States.IN_AIR)
 
 func state_hitstop():
 	pass
@@ -352,7 +373,7 @@ func state_slash_bouceback(delta,dir_at_press:Vector2):
 		slash_time = 0
 		toggle_area(slashArea,false)
 		toggle_area(bodyArea,true)
-		_state = States.SLASH_ENDLAG
+		change_state(States.SLASH_ENDLAG)
 	
 	
 func state_wall_slide(delta:float,wall_dir:Vector2):
@@ -365,7 +386,7 @@ func state_wall_slide(delta:float,wall_dir:Vector2):
 		velocity += wall_jump_str
 		velocity.y = -velocity.y
 		velocity.x = velocity.x * wall_dir.x
-		_state = States.IN_AIR
+		change_state(States.IN_AIR)
 		
 	
 	if dir.x == wall_dir.x and !is_on_floor() and next_to_wall():
@@ -373,7 +394,7 @@ func state_wall_slide(delta:float,wall_dir:Vector2):
 		velocity = move_and_slide(velocity,UP)
 	else:
 		#velocity.y += wall_slide_speed 
-		_state = States.IN_AIR
+		change_state(States.IN_AIR)
 		
 	
 	
@@ -410,7 +431,7 @@ func jump():
 	var is_jumping:bool = Input.is_action_just_pressed(input_jump) and dir.y <= 0
 	if is_jumping:
 		velocity.y = -jump_str
-		#_state = States.IN_AIR
+		#change_state(States.IN_AIR
 		
 	if Input.is_action_just_released(input_jump) and velocity.y < 0:
 		velocity.y = lerp(velocity.y, 0, 0.5)
@@ -418,23 +439,23 @@ func jump():
 func slide():
 	if Input.is_action_just_pressed(input_jump) and dir.y == 1:
 		slide_velocity.x = slide_speed
-		_state = States.SLIDING
+		change_state(States.SLIDING)
 
 func shoot():
 	if Input.is_action_just_pressed(input_gun) and ammo > 0 and gun_cooling == false:
 		#gunCooldown.start(gun_cool_time)
-		_state = States.SHOOTING
+		change_state(States.SHOOTING)
 		yield(get_tree().create_timer(gun_cool_time), "timeout")
 		gun_cooling = false
 		
 func slash():
 	if Input.is_action_just_pressed(input_sword) and slashed_in_jump == false:
 		slashed_in_jump = true
-		_state = States.SLASHING
+		change_state(States.SLASHING)
 		
 func on_player_defeat():
 	is_alive = false
-	_state = States.RESPAWNING
+	change_state(States.RESPAWNING)
 	yield(get_tree().create_timer(respawn_time), "timeout")
 	#---after timer---
 	is_alive = true
@@ -446,14 +467,13 @@ func on_player_defeat():
 	toggle_area(bodyArea,true)
 	bodyArea.monitoring = true
 	reset_state()
-	pass
 #---------------------------------------------------------------------------------
 
 func temp_hitstop_state(last_state):
-	_state = States.HITSTOP
+	change_state(States.HITSTOP)
 	emit_signal("start_hitstop",time_scale,duration)
 	yield(get_parent(),"hitstop_over")
-	_state = last_state
+	change_state(last_state)
 
 # COLLISIONS--------------------------------------------
 func on_body_entered(body:PhysicsBody2D):
@@ -496,8 +516,8 @@ func on_slashArea_entered(area:Area2D):
 					slash_time = 0
 					body.slash_time = 0
 					body.toggle_area(slashArea,false)
-					_state = States.SLASH_BOUCEBACK 
-					body._state = States.SLASH_BOUCEBACK 
+					change_state(States.SLASH_BOUCEBACK)
+					body.change_state(States.SLASH_BOUCEBACK) 
 				
 func next_to_wall():
 	return next_to_right_wall() or next_to_left_wall()
@@ -514,6 +534,11 @@ func next_to_left_wall():
 		if collider.is_in_group("floor"):
 			return true
 	
+# async functions -------------------
+func scored_point():
+	targets_scored+= 1
+	# if at quota then win round
+	pass
 		
 	
 

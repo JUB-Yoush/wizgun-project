@@ -25,6 +25,7 @@ DOING
 
 GAMEPLAY LOOP STUFF:
 - set up targets:
+    - randomly spawn in at set points
 	- you shoot or dash into them to collect them
 	- they get added to your target count
 - baskets
@@ -32,6 +33,9 @@ GAMEPLAY LOOP STUFF:
 	- stay within the target area for long enough for it to count as a cash in 
 	- 5 cash ins wins the round
 
+bugs:
+- allow 1-tile wide gaps to wall-slide but not wall jump
+- let targets be hit by projectiles
 
 
 Post MVP:
@@ -39,6 +43,8 @@ Post MVP:
 - re-balance the shooting mechaincs (can only be deflected twice)
 - make it so that you can shoot through one-way platforms?
 - get the gun animations working, with muzzle flash and the gun turning to face the direction held
+- make the hitstop a slowdown instead of a stop?
+- bug where hugging wall gives a hight boost?
 
 	P ANIMATIONS:
 	- flip based on direction
