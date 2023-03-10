@@ -1,5 +1,5 @@
-extends KinematicBody2D
 class_name CharacterBase
+extends CharacterBody2D
 
 # CONTROLS ----------------------------------------
 var input_left:String
@@ -15,18 +15,18 @@ var input_sword:String
 var player_tag:String
 
 # CHILD NODES ---------------------------------------
-onready var hitbox := $Hitbox
-onready var sprite := $Sprite
-onready var gun := $Gun
-onready var gunSprite := $Gun/GunSprite
-onready var gunFlashSprite := $Gun/GunSprite/GunFlash
-onready var animPlayer := $AnimationPlayer
-onready var bodyArea := $BodyArea
-onready var bodyAreaHitbox := $BodyArea/AreaHitbox
-onready var slashArea = $SlashArea
+@onready var hitbox := $Hitbox
+@onready var sprite := $Sprite2D
+@onready var gun := $Gun
+@onready var gunSprite := $Gun/GunSprite
+@onready var gunFlashSprite := $Gun/GunSprite/GunFlash
+@onready var animPlayer := $AnimationPlayer
+@onready var bodyArea := $BodyArea
+@onready var bodyAreaHitbox := $BodyArea/AreaHitbox
+@onready var slashArea = $SlashArea
 
-onready var wallRayR:RayCast2D = $WallRayR
-onready var wallRayL:RayCast2D = $WallRayL
+@onready var wallRayR:RayCast2D = $WallRayR
+@onready var wallRayL:RayCast2D = $WallRayL
 
 
 # RESPAWNING ---------------------------------------	 
@@ -35,50 +35,50 @@ var respawn_time:float = 2
 
 # MOVEMENT ----------------------------------------
 
-export var speed:float = 125.0
-export var max_speed:Vector2 = Vector2(1500,1500)
-export var jump_str:float = 380.0
-export (float,0,1.0) var ground_friction = 0.2
-export (float,0,1.0) var air_friction = 0.1
-export (float,0,1.0) var acceleration = 0.2
-export var gravity:float = 23
+@export var speed:float = 125.0
+@export var max_speed:Vector2 = Vector2(1500,1500)
+@export var jump_str:float = 380.0
+@export var ground_friction :float = 0.2
+@export var air_friction:float = 0.1
+@export var acceleration :float= 0.2
+@export var gravity:float = 23
 const MAX_GRAVITY = 500
 const UP = Vector2.UP
 
 # falling thru platforms
 
 # SLIDING --------------------------------
-export var slide_speed:float = 350
+@export var slide_speed:float = 350
 var slide_velocity:Vector2 = Vector2.ZERO
-export var slide_friction:float = 15
-export var slide_stop_speed:float = 75
+@export var slide_friction:float = 15
+@export var slide_stop_speed:float = 75
 var slidingHitbox := load("res://src/characters/base/SlidingHitbox.tres")
 var standingHitbox := load("res://src/characters/base/StandingHitbox.tres")
 
 #SHOOTING ------------------------------
-export var Projectile:PackedScene = preload("res://src/characters/base/Projectile.tscn")
-export var gun_recoil:Vector2 = Vector2(300,400)
+@export var Projectile:PackedScene = preload("res://src/characters/base/Projectile.tscn")
+@export var gun_recoil:Vector2 = Vector2(300,400)
 #onready var gunCooldown = $GunCooldown
-export var ammo = 99
+@export var ammo = 99
 var has_gun := true
 var gun_cool_time:float = 0.3
 var gun_cooling := false
 
 #SLASHING -----------------------------
-export var slash_speed:Vector2 = Vector2(700,500)
+@export var slash_speed:Vector2 = Vector2(700,500)
 var velocity_at_press:Vector2 = Vector2.ZERO
 var slash_time:float  = 0
-export var slash_active_time:float = 1.0
+@export var slash_active_time:float = 1.0
 var slash_frame_time := 10.0
 var slashed_in_jump:bool = false
 var slash_succeeded:bool = false
 
 # SLASH ENDLAG --------------------------------
-export var slash_recovery_time:float = 5.0 
+@export var slash_recovery_time:float = 5.0 
 
 # SLASH BOUCEBACK --------------------------------
-export var slash_bb_frames:float = 5
-export var slash_bb_speed:Vector2 = Vector2(700,500)
+@export var slash_bb_frames:float = 5
+@export var slash_bb_speed:Vector2 = Vector2(700,500)
 
 
 # HITSTOP ----------------------------------------
@@ -87,10 +87,10 @@ var duration = 0.7
 signal start_hitstop(time_scale, duration)
 
 #WALL JUMP ----------------------------------------------
-onready var wall_slide_speed:float = 15
-onready var wall_jump_str:Vector2 = Vector2(-400,250)
+@onready var wall_slide_speed:float = 15
+@onready var wall_jump_str:Vector2 = Vector2(-400,250)
 var wall_dir:Vector2 = Vector2.ZERO
-onready var MAX_WALL_SLIDE_SPEED = 40
+@onready var MAX_WALL_SLIDE_SPEED = 40
 var jumped_on_this_wall:bool = false
 var last_wall_dir:Vector2
 
@@ -114,28 +114,33 @@ enum States {
 	SLASH_ENDLAG,
 	RESPAWNING,
 	SLASH_BOUCEBACK,
-	HITSTOP	
+	HITSTOP,	
 	WALL_SLIDE
 	}
 
 
 var dir = Vector2.ZERO
 var last_dir = Vector2.ZERO
-var velocity = Vector2.ZERO
 var _state = States.ON_GROUND
 
 func _ready():
-	connect("start_hitstop",get_parent(),"make_hitstop")
-	bodyArea.connect("area_entered",self,"on_area_entered")
-	slashArea.connect("area_entered",self,"on_slashArea_entered")
+	print(_state)
+	start_hitstop.connect(get_parent().make_hitstop)
+	bodyArea.area_entered.connect(on_area_entered)
+	slashArea.area_entered.connect(on_slashArea_entered)
+
+	#connect("start_hitstop",Callable(get_parent(),"make_hitstop"))
+	#bodyArea.connect("area_entered",Callable(self,"on_area_entered"))
+	#slashArea.connect("area_entered",Callable(self,"on_slashArea_entered"))
 
 	
 
-func _physics_process(delta):
+func _physics_process(delta: float) -> void:
 	#print(velocity)
 #	if old_state != _state:
 #		print(str(player_tag) + "state:" +str(_state))
 	#Finite state machine
+	print('mathcing state')
 	match _state:
 		States.ON_GROUND:
 			state_on_ground(delta)
@@ -214,7 +219,10 @@ func state_sliding(delta:float, passed_in_dir:Vector2):
 	slide_velocity.x = abs(slide_velocity.x - slide_friction) 
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
 	velocity.x = velocity.x * passed_in_dir.x
-	velocity = move_and_slide(velocity,UP)
+	set_velocity(velocity)
+	set_up_direction(UP)
+	move_and_slide()
+	velocity = velocity
 	
 	if is_on_floor() == false: 
 		bodyAreaHitbox.shape = standingHitbox
@@ -255,7 +263,10 @@ func state_slashing(delta,dir_at_press:Vector2):
 	animPlayer.play("slash")
 	
 	velocity = slashing_dir * slash_speed
-	velocity = move_and_slide(velocity,UP)
+	set_velocity(velocity)
+	set_up_direction(UP)
+	move_and_slide()
+	velocity = velocity
 	
 	slash_time += delta * slash_frame_time
 	if slash_time >= slash_active_time:
@@ -291,7 +302,7 @@ func state_shooting(delta:float,dir_at_press:Vector2):
 	velocity = gun_recoil * -aiming_dir
 	
 	# make bullet
-	var proj = Projectile.instance()
+	var proj = Projectile.instantiate()
 	proj.dir = aiming_dir
 	proj.position = position
 	
@@ -367,7 +378,10 @@ func state_slash_bouceback(delta,dir_at_press:Vector2):
 	opposite_dir = opposite_dir * -1
 	
 	velocity = opposite_dir * slash_bb_speed
-	velocity = move_and_slide(velocity,UP)
+	set_velocity(velocity)
+	set_up_direction(UP)
+	move_and_slide()
+	velocity = velocity
 	slash_time += 1
 	if slash_time >= slash_bb_frames:
 		slash_time = 0
@@ -391,7 +405,10 @@ func state_wall_slide(delta:float,wall_dir:Vector2):
 	
 	if dir.x == wall_dir.x and !is_on_floor() and next_to_wall():
 		velocity.y = min(velocity.y + wall_slide_speed,MAX_WALL_SLIDE_SPEED)
-		velocity = move_and_slide(velocity,UP)
+		set_velocity(velocity)
+		set_up_direction(UP)
+		move_and_slide()
+		velocity = velocity
 	else:
 		#velocity.y += wall_slide_speed 
 		change_state(States.IN_AIR)
@@ -420,7 +437,10 @@ func move(delta,friction):
 		velocity.x = lerp(velocity.x, 0,friction)
 		
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
-	velocity = move_and_slide(velocity,UP)
+	set_velocity(velocity)
+	set_up_direction(UP)
+	move_and_slide()
+	velocity = velocity
 	
 	if velocity.x != 0:
 		animPlayer.play("run")
@@ -445,7 +465,7 @@ func shoot():
 	if Input.is_action_just_pressed(input_gun) and ammo > 0 and gun_cooling == false:
 		#gunCooldown.start(gun_cool_time)
 		change_state(States.SHOOTING)
-		yield(get_tree().create_timer(gun_cool_time), "timeout")
+		await get_tree().create_timer(gun_cool_time).timeout
 		gun_cooling = false
 		
 func slash():
@@ -456,7 +476,7 @@ func slash():
 func on_player_defeat():
 	is_alive = false
 	change_state(States.RESPAWNING)
-	yield(get_tree().create_timer(respawn_time), "timeout")
+	await get_tree().create_timer(respawn_time).timeout
 	#---after timer---
 	is_alive = true
 	var respawnPosition = get_parent().get_respawn_position()
@@ -472,7 +492,7 @@ func on_player_defeat():
 func temp_hitstop_state(last_state):
 	change_state(States.HITSTOP)
 	emit_signal("start_hitstop",time_scale,duration)
-	yield(get_parent(),"hitstop_over")
+	await get_parent().hitstop_over
 	change_state(last_state)
 
 # COLLISIONS--------------------------------------------

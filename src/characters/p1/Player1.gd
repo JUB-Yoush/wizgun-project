@@ -1,4 +1,4 @@
-extends CharacterBase
+extends load("res://src/characters/base/Base.gd")
 func _ready():
 	# CONTROLS ---------------------
 	input_up = "p1_up"

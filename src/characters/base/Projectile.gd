@@ -2,16 +2,16 @@ extends Area2D
 
 var time_scale = 0.03
 var duration = 0.7
-onready var Explosion:PackedScene = preload("res://src/characters/base/Explode.tscn")
+@onready var Explosion:PackedScene = preload("res://src/characters/base/Explode.tscn")
 var dir:Vector2 = Vector2.ZERO
-export var lifetime = 0.5
-export var reflected_lifetime = 0.2
-export var speed:float = 5
-export var reflected_speed = 10
+@export var lifetime = 0.5
+@export var reflected_lifetime = 0.2
+@export var speed:float = 5
+@export var reflected_speed = 10
 var velocity:Vector2
 var reflected:bool = false
-onready var visibilityNotif = $VisibilityNotifier2D
-onready var lifespanTimer = $LifespanTimer
+@onready var visibilityNotif = $VisibleOnScreenNotifier2D
+@onready var lifespanTimer = $LifespanTimer
 
 const PARENTS:Array = ["p1","p2"]
 signal start_hitstop(caller,time_scale, duration)
@@ -19,12 +19,12 @@ signal hitstop_over
 var parent_tag:String
 # Called when the node enters the scene tree for the first time.
 func _ready(): 
-	connect("start_hitstop",get_parent(),"make_hitstop")
-	connect("body_entered",self,"on_body_entered")
-	connect("area_entered",self,"on_area_entered")
-	lifespanTimer.connect("timeout",self,"on_lifespan_timeout")
+	connect("start_hitstop",Callable(get_parent(),"make_hitstop"))
+	connect("body_entered",Callable(self,"on_body_entered"))
+	connect("area_entered",Callable(self,"on_area_entered"))
+	lifespanTimer.connect("timeout",Callable(self,"on_lifespan_timeout"))
 	lifespanTimer.start(lifetime)
-	visibilityNotif.connect("screen_exited",self,"exited_screen")
+	visibilityNotif.connect("screen_exited",Callable(self,"exited_screen"))
 	if parent_tag == PARENTS[0]:
 		set_modulate("#1b22d3")
 	elif parent_tag ==  PARENTS[1]:
@@ -33,21 +33,21 @@ func _ready():
 	match dir:
 		Vector2(1,0):
 			position.x += 25
-			$Sprite.rotation_degrees = 0
+			$Sprite2D.rotation_degrees = 0
 			$CollisionShape2D.rotation_degrees = 0
-			$Sprite.set_flip_h(false)
+			$Sprite2D.set_flip_h(false)
 		Vector2(-1,0):
 			position.x -= 25
-			$Sprite.rotation_degrees = 0
+			$Sprite2D.rotation_degrees = 0
 			$CollisionShape2D.rotation_degrees = 0
-			$Sprite.set_flip_h(true)
+			$Sprite2D.set_flip_h(true)
 		Vector2(0,1):
 			position.y += 25
-			$Sprite.rotation_degrees = 90
+			$Sprite2D.rotation_degrees = 90
 			$CollisionShape2D.rotation_degrees = 90
 		Vector2(0,-1):
 			position.y -= 25
-			$Sprite.rotation_degrees = 270
+			$Sprite2D.rotation_degrees = 270
 			$CollisionShape2D.rotation_degrees = 270
 			
 func _physics_process(delta):
@@ -98,13 +98,13 @@ func on_body_entered(body:PhysicsBody2D):
 		call_deferred("queue_free")
 			#queue_free()
 
-func reflect(body:KinematicBody2D):
+func reflect(body:CharacterBody2D):
 	reflected = true
 	dir = Vector2.ZERO
 	set_modulate("#ffffff")
 	body.temp_hitstop_state(body._state)
 	emit_signal("start_hitstop",time_scale, duration)
-	yield(get_parent(),"hitstop_over")
+	await get_parent().hitstop_over
 	set_modulate("#10940f")
 	
 	#not ur bullet
@@ -123,7 +123,7 @@ func reflect(body:KinematicBody2D):
 	lifespanTimer.start(reflected_lifetime)
 	
 func explode():
-	var explosion = Explosion.instance()
+	var explosion = Explosion.instantiate()
 	explosion.position = position
 	get_parent().add_child(explosion)
 	call_deferred("queue_free")

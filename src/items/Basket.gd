@@ -1,16 +1,16 @@
 extends Area2D
 
-onready var timer := $Timer
-onready var progressBar := $ProgressBar
+@onready var timer := $Timer
+@onready var progressBar := $ProgressBar
 
 var body_present:PhysicsBody2D = null
 var delivery_time := 1.0
 var two_bodies_present := false
 func _ready() -> void:
 	timer.wait_time = delivery_time
-	connect("area_entered",self,"on_area_entered")
-	connect("area_exited",self,"on_area_exited")
-	timer.connect("timeout",self,"on_timer_timeout")
+	connect("area_entered",Callable(self,"on_area_entered"))
+	connect("area_exited",Callable(self,"on_area_exited"))
+	timer.connect("timeout",Callable(self,"on_timer_timeout"))
 
 
 func on_area_entered(area:Area2D):

@@ -1,4 +1,4 @@
-extends CharacterBase
+extends load("res://src/characters/base/Base.gd") 
 
 
 # Declare member variables here. Examples:

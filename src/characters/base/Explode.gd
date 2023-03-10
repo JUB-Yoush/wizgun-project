@@ -1,9 +1,9 @@
 extends Area2D
-export var explode_lifetime:float = 0.2
+@export var explode_lifetime:float = 0.2
 
 func _ready() -> void:
-	connect("area_entered",self,"on_area_entered")
-	yield(get_tree().create_timer(explode_lifetime), "timeout")
+	connect("area_entered",Callable(self,"on_area_entered"))
+	await get_tree().create_timer(explode_lifetime).timeout
 	call_deferred("queue_free")
 
 func on_area_entered(area:Area2D):

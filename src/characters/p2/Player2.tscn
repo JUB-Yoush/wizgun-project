@@ -6,7 +6,7 @@
 [node name="Player2" instance=ExtResource( 1 )]
 script = ExtResource( 2 )
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite2D" parent="." index="1"]
 self_modulate = Color( 0.94902, 0.121569, 0.121569, 1 )
 
 [node name="GunSprite" parent="Gun" index="0"]

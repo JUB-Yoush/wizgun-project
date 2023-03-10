@@ -1,204 +1,204 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=3 uid="uid://c0qntdfxwugvv"]
 
-[ext_resource path="res://assets/tilesheet.png" type="Texture" id=1]
-[ext_resource path="res://src/characters/base/Base.gd" type="Script" id=2]
-[ext_resource path="res://src/characters/base/areaStandingBox.tres" type="Shape2D" id=3]
-[ext_resource path="res://src/characters/base/StandingHitbox.tres" type="Shape2D" id=4]
+[ext_resource type="Texture2D" uid="uid://c7js36x1sb8c8" path="res://assets/tilesheet.png" id="1"]
+[ext_resource type="Script" path="res://src/characters/base/Base.gd" id="2"]
+[ext_resource type="Shape2D" path="res://src/characters/base/areaStandingBox.tres" id="3"]
+[ext_resource type="Shape2D" path="res://src/characters/base/StandingHitbox.tres" id="4"]
 
-[sub_resource type="Animation" id=2]
+[sub_resource type="Animation" id="2"]
 resource_name = "air_fall"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 6 ]
+"values": [6]
 }
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id="3"]
 resource_name = "air_rise"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 5 ]
+"values": [5]
 }
 
-[sub_resource type="Animation" id=4]
+[sub_resource type="Animation" id="4"]
 resource_name = "death"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 7 ]
+"values": [7]
 }
 
-[sub_resource type="Animation" id=11]
+[sub_resource type="Animation" id="11"]
 resource_name = "gun_flash"
 length = 0.2
 step = 0.2
 tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
 tracks/0/path = NodePath("../Gun/GunSprite/GunFlash:visible")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 0.2 ),
-"transitions": PoolRealArray( 1, 1 ),
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
 "update": 1,
-"values": [ true, false ]
+"values": [true, false]
 }
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id="8"]
 resource_name = "idle"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 2 ]
+"values": [2]
 }
 
-[sub_resource type="Animation" id=1]
+[sub_resource type="Animation" id="1"]
 resource_name = "run"
 length = 0.3
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 0.1, 0.2 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [ 0, 1, 2 ]
+"values": [0, 1, 2]
 }
 
-[sub_resource type="Animation" id=6]
+[sub_resource type="Animation" id="6"]
 resource_name = "slash"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 4 ]
+"values": [4]
 }
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id="7"]
 resource_name = "slash_endlag"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 8 ]
+"values": [8]
 }
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id="5"]
 resource_name = "slide"
 length = 0.1
-loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ 3 ]
+"values": [3]
 }
 
-[sub_resource type="RectangleShape2D" id=9]
-extents = Vector2( 14.5, 7.5 )
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_mwut3"]
+_data = {
+"air_fall": SubResource("2"),
+"air_rise": SubResource("3"),
+"death": SubResource("4"),
+"gun_flash": SubResource("11"),
+"idle": SubResource("8"),
+"run": SubResource("1"),
+"slash": SubResource("6"),
+"slash_endlag": SubResource("7"),
+"slide": SubResource("5")
+}
 
-[node name="Base" type="KinematicBody2D" groups=["player"]]
-position = Vector2( 0, 1 )
+[sub_resource type="RectangleShape2D" id="9"]
+size = Vector2(14.5, 7.5)
+
+[node name="Base" type="CharacterBody2D" groups=["player"]]
+texture_filter = 1
+position = Vector2(0, 1)
 collision_layer = 2
 collision_mask = 5
-script = ExtResource( 2 )
+script = ExtResource("2")
 ammo = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 root_node = NodePath("../Hitbox")
 reset_on_save = false
-anims/air_fall = SubResource( 2 )
-anims/air_rise = SubResource( 3 )
-anims/death = SubResource( 4 )
-anims/gun_flash = SubResource( 11 )
-anims/idle = SubResource( 8 )
-anims/run = SubResource( 1 )
-anims/slash = SubResource( 6 )
-anims/slash_endlag = SubResource( 7 )
-anims/slide = SubResource( 5 )
+libraries = {
+"": SubResource("AnimationLibrary_mwut3")
+}
 
-[node name="Sprite" type="Sprite" parent="."]
-texture = ExtResource( 1 )
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1")
 centered = false
-offset = Vector2( -8, -8 )
+offset = Vector2(-8, -8)
 hframes = 9
 frame = 6
 region_enabled = true
-region_rect = Rect2( 0, 0, 144, 16 )
+region_rect = Rect2(0, 0, 144, 16)
 
 [node name="Hitbox" type="CollisionShape2D" parent="."]
-shape = ExtResource( 4 )
+shape = ExtResource("4")
 
 [node name="BodyArea" type="Area2D" parent="." groups=["hitbox"]]
 collision_layer = 2
 collision_mask = 38
 
 [node name="AreaHitbox" type="CollisionShape2D" parent="BodyArea"]
-shape = ExtResource( 3 )
+shape = ExtResource("3")
 
 [node name="SlashArea" type="Area2D" parent="." groups=["slashbox"]]
 rotation = -1.5708
@@ -208,33 +208,31 @@ monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SlashArea"]
-position = Vector2( 14.5, 0 )
-shape = SubResource( 9 )
+position = Vector2(14.5, 0)
+shape = SubResource("9")
 
 [node name="Gun" type="Node2D" parent="."]
 
-[node name="GunSprite" type="Sprite" parent="Gun"]
-texture = ExtResource( 1 )
+[node name="GunSprite" type="Sprite2D" parent="Gun"]
+texture = ExtResource("1")
 centered = false
-offset = Vector2( -8, -8 )
+offset = Vector2(-8, -8)
 region_enabled = true
-region_rect = Rect2( 0, 16, 16, 16 )
+region_rect = Rect2(0, 16, 16, 16)
 
-[node name="GunFlash" type="Sprite" parent="Gun/GunSprite"]
+[node name="GunFlash" type="Sprite2D" parent="Gun/GunSprite"]
 visible = false
-self_modulate = Color( 1, 0.47451, 0.294118, 1 )
-position = Vector2( 16, 0 )
-texture = ExtResource( 1 )
+self_modulate = Color(1, 0.47451, 0.294118, 1)
+position = Vector2(16, 0)
+texture = ExtResource("1")
 centered = false
-offset = Vector2( -8, -8 )
+offset = Vector2(-8, -8)
 region_enabled = true
-region_rect = Rect2( 16, 16, 16, 16 )
+region_rect = Rect2(16, 16, 16, 16)
 
 [node name="WallRayR" type="RayCast2D" parent="."]
 visible = false
-enabled = true
-cast_to = Vector2( 9, 0 )
+target_position = Vector2(9, 0)
 
 [node name="WallRayL" type="RayCast2D" parent="."]
-enabled = true
-cast_to = Vector2( -9, 0 )
+target_position = Vector2(-9, 0)
