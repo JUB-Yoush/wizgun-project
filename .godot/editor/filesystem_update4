@@ -1,7 +1,9 @@
 res://default_env.tres
-res://src/characters/base/Base.tscn
-res://src/characters/p2/Player2.gd
-res://src/characters/base/Base.gd
-res://src/stage/Main.gd
 res://src/stage/Main.tscn
+res://src/characters/base/Base.tscn
+res://src/characters/p1/Player1.tscn
+res://src/characters/p2/Player2.tscn
+res://src/stage/Platform.tscn
+res://src/characters/base/Base.gd
 res://src/characters/p1/Player1.gd
+res://src/characters/p2/Player2.gd

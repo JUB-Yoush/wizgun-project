@@ -1,4 +1,5 @@
-extends load("res://src/characters/base/Base.gd")
+#extends preload("res://src/characters/base/Base.gd")
+extends CharacterBase
 func _ready():
 	# CONTROLS ---------------------
 	input_up = "p1_up"
@@ -13,4 +14,4 @@ func _ready():
 	# IDENTIFIERS ---------------------
 	player_tag = "p1"
 	#add_collision_exception_with(get_parent().get_node("Player2"))
-
+	super._ready()

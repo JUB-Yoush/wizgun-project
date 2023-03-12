@@ -1,4 +1,5 @@
-extends load("res://src/characters/base/Base.gd") 
+#extends load("res://src/characters/base/Base.gd") 
+extends CharacterBase
 
 
 # Declare member variables here. Examples:
@@ -21,5 +22,6 @@ func _ready():
 	# IDENTIFIERS ---------------------
 	player_tag = "p2"
 	#add_collision_exception_with(get_parent().get_node("Player1"))
+	super._ready()
 	
 

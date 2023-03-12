@@ -1,16 +1,19 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://wrrrhwlcod2k"]
 
-[ext_resource path="res://src/characters/base/Base.tscn" type="PackedScene" id=1]
-[ext_resource path="res://src/characters/p1/Player1.gd" type="Script" id=2]
+[ext_resource type="PackedScene" uid="uid://c0qntdfxwugvv" path="res://src/characters/base/Base.tscn" id="1"]
+[ext_resource type="Script" path="res://src/characters/p1/Player1.gd" id="2"]
 
-[node name="Player1" instance=ExtResource( 1 )]
-script = ExtResource( 2 )
+[node name="Player1" instance=ExtResource("1")]
+script = ExtResource("2")
 
 [node name="Sprite2D" parent="." index="1"]
-modulate = Color( 0.0823529, 0.65098, 0.956863, 1 )
+modulate = Color(0.0823529, 0.65098, 0.956863, 1)
+
+[node name="BodyArea" parent="." index="3"]
+collision_mask = 54
 
 [node name="SlashArea" parent="." index="4"]
 collision_mask = 30
 
 [node name="GunSprite" parent="Gun" index="0"]
-self_modulate = Color( 0.466667, 0.215686, 0.67451, 1 )
+self_modulate = Color(0.466667, 0.215686, 0.67451, 1)

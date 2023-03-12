@@ -24,6 +24,7 @@ var player_tag:String
 @onready var bodyArea := $BodyArea
 @onready var bodyAreaHitbox := $BodyArea/AreaHitbox
 @onready var slashArea = $SlashArea
+@onready var timer = $Timer
 
 @onready var wallRayR:RayCast2D = $WallRayR
 @onready var wallRayL:RayCast2D = $WallRayL
@@ -124,23 +125,24 @@ var last_dir = Vector2.ZERO
 var _state = States.ON_GROUND
 
 func _ready():
-	print(_state)
+	print('aha')
 	start_hitstop.connect(get_parent().make_hitstop)
 	bodyArea.area_entered.connect(on_area_entered)
 	slashArea.area_entered.connect(on_slashArea_entered)
+	timer.timeout.connect(_on_timer_timeout)
 
 	#connect("start_hitstop",Callable(get_parent(),"make_hitstop"))
 	#bodyArea.connect("area_entered",Callable(self,"on_area_entered"))
 	#slashArea.connect("area_entered",Callable(self,"on_slashArea_entered"))
 
-	
+func _on_timer_timeout():
+	print('imtasdflj')	
 
 func _physics_process(delta: float) -> void:
 	#print(velocity)
 #	if old_state != _state:
 #		print(str(player_tag) + "state:" +str(_state))
 	#Finite state machine
-	print('mathcing state')
 	match _state:
 		States.ON_GROUND:
 			state_on_ground(delta)
@@ -166,7 +168,7 @@ func _physics_process(delta: float) -> void:
 	old_state = _state
 			
 	
-func change_state(new_state:int):
+func change_state(new_state:States):
 	match _state:
 		States.ON_GROUND:
 			pass
@@ -434,7 +436,7 @@ func move(delta,friction):
 	if dir.x != 0:
 		velocity.x = lerp(velocity.x, dir.x * speed, acceleration)
 	else:
-		velocity.x = lerp(velocity.x, 0,friction)
+		velocity.x = lerp(velocity.x, 0.0,friction)
 		
 	velocity.y = min(velocity.y + gravity,MAX_GRAVITY)
 	set_velocity(velocity)
@@ -454,7 +456,7 @@ func jump():
 		#change_state(States.IN_AIR
 		
 	if Input.is_action_just_released(input_jump) and velocity.y < 0:
-		velocity.y = lerp(velocity.y, 0, 0.5)
+		velocity.y = lerp(velocity.y, 0.0, 0.5)
 
 func slide():
 	if Input.is_action_just_pressed(input_jump) and dir.y == 1:
@@ -503,6 +505,7 @@ func on_body_entered(body:PhysicsBody2D):
 
 
 func on_area_entered(area:Area2D):
+	print('func on_area_entered(area:Area2D):')
 	var body = area.get_parent()
 	
 	if body == null:
@@ -513,6 +516,7 @@ func on_area_entered(area:Area2D):
 		
 		
 func on_slashArea_entered(area:Area2D):
+	print('slash area entered')
 	var body = area.get_parent()
 	if body.is_in_group("targets"):
 		if area.is_in_group("target"):
